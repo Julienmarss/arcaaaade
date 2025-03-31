@@ -13,6 +13,7 @@ games:
 	$(MAKE) -C src/Games/Snake
 graphicals:
 	$(MAKE) -C src/Libraries/Ncurses
+	$(MAKE) -C src/Libraries/SFML
 clean:
 	$(MAKE) -C src clean
 	$(MAKE) -C src/Games/Snake clean

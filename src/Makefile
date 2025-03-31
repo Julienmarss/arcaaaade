@@ -8,14 +8,21 @@ NAME    = arcade
 
 SRC     = Core/DLLoader.cpp \
 		  Core/Application.cpp \
+		  Core/MenuManager.cpp \
 		  Core/ApplicationError.cpp \
+		  Core/Abstract/AGraphicLibrary.cpp \
+		  Core/Abstract/AGameLibrary.cpp \
+		  Core/Components/RenderComponent.cpp \
+		  Core/Components/MenuComponent.cpp \
+		  Core/MapManager.cpp \
+		  Core/GameManager.cpp \
 		  Main.cpp
 		
 
 OBJ     = $(SRC:.cpp=.o)
 
 CXX     = g++
-CXXFLAGS= -Wall -Wextra -Werror -std=c++11 -fPIC -fno-gnu-unique -I ../includes
+CXXFLAGS= -Wall -Wextra -Werror -std=c++20 -fPIC -fno-gnu-unique -I ../includes -rdynamic -g
 LDFLAGS = -ldl
 
 all: $(NAME)

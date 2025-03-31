@@ -1,15 +1,10 @@
-/*
-** EPITECH PROJECT, 2025
-** Tek 2 B-OOP-400-LIL-4-1-arcade-martin.delebecque
-** File description:
-** Application.cpp
-*/
-
 #include "Core/Application.hpp"
-#include "Interface/ILibraryModule.hpp"
-#include "Interface/IGameModule.hpp"
+#include "Interface/IGraphicLibrary.hpp"
+#include "Interface/IGameLibrary.hpp"
 #include "Core/ApplicationError.hpp"
 #include "Core/DLLoader.hpp"
+#include "Core/ArcadeState.hpp"
+#include "Core/MenuManager.hpp"
 
 arc::Application::Application(int ac, char **av)
 {
@@ -18,51 +13,71 @@ arc::Application::Application(int ac, char **av)
     }
     getGames();
     getLibraries();
-    if (_libraries.empty() == true) {
-        throw ApplicationError("Error: no libraries found");
-    }
     std::string lib = std::string(av[1]);
-    if (_games.empty() == true) {
-        throw ApplicationError("Error: no games found");
-    }
     username = "Martin";
+    this->_menuManager = new arc::MenuManager(this->_libraries, this->_games, username);
     this->run(lib);
-}
-
-arc::Application::~Application()
-{
 }
 
 void arc::Application::getGames()
 {
-    // Note : faire en sorte de lire le contenu du dossier games et de récupérer les jeux (en vérifiant avec le DDLLoader->isGraphical())
-    // et les stocker dans le vector _games
+
 }
 
 void arc::Application::getLibraries()
 {
-    // Note : faire en sorte de lire le contenu du dossier lib et de récupérer les librairies (en vérifiant avec le DDLLoader->isGraphical())
-    // et les stocker dans le vector _libraries
 }
 
-std::vector<std::string> arc::Application::readDirectory(std::string directory) const
+arc::Application::~Application()
 {
-    (void) directory;
-    // Note : faire en sorte de lire le contenu du dossier demandé et de retourner un vector de string contenant les noms des fichiers
-    return std::vector<std::string>();
+    delete this->_menuManager;
 }
 
 void arc::Application::run(std::string lib)
 {
-    arc::DLLoader<arc::ILibraryModule> loader(lib);
+    arc::DLLoader<arc::IGraphicLibrary> loader(lib);
 
     if (loader.isGraphical() == false) {
         throw ApplicationError("Error: the library is not graphical");
     }
-    auto createLibraries = reinterpret_cast<arc::ILibraryModule *(*)()>(loader.getFunction(loader.getHandle(), "createLibraries"));
-    arc::ILibraryModule *libraries = createLibraries();
-    libraries->init();
-    std::cout << libraries->getName() << std::endl;
-    libraries->stop();
+    auto createLibraries = reinterpret_cast<arc::IGraphicLibrary *(*)()>(
+        loader.getFunction(loader.getHandle(), "entryPoint")
+    );
+    arc::IGraphicLibrary *libraries = createLibraries();
+    Event event = Event::TEXT_INPUT;
+
+    try {
+        libraries->Initialize();
+        libraries->Open();
+    } catch (const std::exception &e) {
+        throw ApplicationError(e.what());
+    }
+    arc::DLLoader<arc::IGameLibrary> gameLoader("lib/arcade_snake.so");
+    auto createGame = reinterpret_cast<arc::IGameLibrary *(*)()>(
+        gameLoader.getFunction(gameLoader.getHandle(), "entryPoint")
+    );
+    arc::IGameLibrary *game = createGame();
+    while (libraries->IsOpen()) {
+        libraries->Clear();
+        if (_menuManager->getState() == ArcadeState::LIB_MENU ||
+            _menuManager->getState() == ArcadeState::GAME_MENU ||
+            _menuManager->getState() == ArcadeState::CHANGE_USERNAME) {
+            libraries->DrawMenu(_menuManager->getCurrentMenu());
+        }
+        if (_menuManager->getState() == ArcadeState::IN_GAME) {
+            game->InitGame();
+            _menuManager->_gameManager.LoadGame(_menuManager->getUsername(), game);
+            libraries->DrawMap(_menuManager->getCurrentMap());
+            libraries->DrawScore(_menuManager->getCurrentScore());
+            // a retirer
+        }
+        event = libraries->HandleEvent();
+        if (!_menuManager->processEvent(event, libraries->GetKeyPressed())) {
+            libraries->Close();
+            break;
+        }
+        libraries->Display();
+    }
+    libraries->Close();
     delete libraries;
 }

@@ -10,13 +10,16 @@
 #include <string>
 #include <dlfcn.h>
 
-#include "Interface/ILibraryModule.hpp"
+#include "Interface/IGraphicLibrary.hpp"
+#include "Interface/IGameLibrary.hpp"
 #include "Core/DLLoader.hpp"
+
+template class arc::DLLoader<arc::IGameLibrary>;
 
 template<typename T>
 arc::DLLoader<T>::DLLoader(const std::string &path) : libPath(path), _handle(nullptr)
 {
-    _handle = dlopen(libPath.c_str(), RTLD_NOW);
+    _handle = dlopen(libPath.c_str(), RTLD_NOW | RTLD_GLOBAL);
     if (_handle == nullptr) {
         throw std::runtime_error("Error in loading of " + libPath + ": " + getDlError());
     }
@@ -53,10 +56,7 @@ void *arc::DLLoader<T>::getHandle() const
 template<typename T>
 bool arc::DLLoader<T>::isGraphical() const
 {
-    if (this->getFunction(_handle, "createDisplay") != nullptr) {
-        return true;
-    }
-    return false;
+    return true;
 }
 
-template class arc::DLLoader<arc::ILibraryModule>;
+template class arc::DLLoader<arc::IGraphicLibrary>;
