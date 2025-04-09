@@ -6,7 +6,6 @@
 */
 
 #include "Core/Abstract/AGameLibrary.hpp"
-#include "Core/Components/IObject.hpp"
 #include "Core/Components/RenderComponent.hpp"
 #include <map>
 
@@ -37,4 +36,14 @@ void arc::games::AGameLibrary::DeleteObject(std::string name)
 std::vector<arc::RenderComponent> arc::games::AGameLibrary::GetObjects(std::string name) const
 {
     return _objects.at(name);
+}
+
+void arc::games::AGameLibrary::AddMap(std::vector<std::vector<arc::RenderComponent>> map)
+{
+    _map = map;
+}
+
+std::vector<std::vector<arc::RenderComponent>> arc::games::AGameLibrary::GetMap() const
+{
+    return _map;
 }

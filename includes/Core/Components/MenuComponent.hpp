@@ -11,28 +11,89 @@
 #include <string>
 #include <vector>
 #include <functional>
+#include "Core/Components/TextComponent.hpp"
 
 namespace arc {
+    /**
+     * @brief MenuComponent class - Class that represents a menu component with a title and a list of items
+     */
     class MenuComponent {
         public:
-            MenuComponent() = default;
+            /**
+             * @brief Construct a new MenuComponent object
+             */
+            MenuComponent();
+
+            /**
+             * @brief Destroy the MenuComponent object
+             */
             ~MenuComponent() = default;
-    
-            void AddItem(const std::string& item);
-            void RemoveItem(const std::string& item);
+
+            /**
+             * @brief Add an item to the menu
+             * @param item The item to add
+             */
+            void AddItem(const TextComponent& item);
+
+            /**
+             * @brief Remove an item from the menu
+             * @param item The item to remove
+             */
+            void RemoveItem(const TextComponent& item);
+
+            /**
+             * @brief Select an item from the menu
+             * @param index The index of the item to select
+             */
             void Select(int index);
-            void SetTitle(const std::string& menuTitle);
-    
-            std::string GetSelectedItem() const;
+
+            /**
+             * @brief Set the title of the menu
+             * @param menuTitle The title of the menu
+             */
+            void SetTitle(const TextComponent& menuTitle);
+
+            /**
+             * @brief Get the selected item from the menu
+             * @return The selected item
+             */
+            TextComponent GetSelectedItem() const;
+
+            /**
+             * @brief Get selected index
+             * @return The selected index
+             */
             int GetSelectedIndex() const;
-            std::string GetTitle() const;
-            std::vector<std::string> GetItems() const;
-            void ClearItems();
+
+            /**
+             * @brief Get the title of the menu
+             * @return The title of the menu
+             */
+            TextComponent GetTitle() const;
+
+            /**
+             * @brief Get the items of the menu
+             * @return The items of the menu
+             */
+            std::vector<TextComponent> GetItems() const;
+
+
         private:
-            std::vector<std::string> items;
-            std::string title;
-            int selectedIndex = 0;
-        };
+            /**
+             * @brief The items of the menu
+             */
+            std::vector<TextComponent> items;
+
+            /**
+             * @brief The selected index
+             */
+            int selectedIndex;
+
+            /**
+             * @brief The title of the menu
+             */
+            TextComponent title;
+    };
 }
 
 #endif

@@ -60,7 +60,7 @@ arc::RenderComponent arc::MapManager::createComponent(int x, int y, char c)
         return arc::RenderComponent(x, y, arc::TypeComponent::PLAYER, c, "resources/player.png");
     if (c == 'E')
         return arc::RenderComponent(x, y, arc::TypeComponent::ENEMY, c, "resources/enemy.png");
-    if (c == 'C')
+    if (c == 'C' || c == 'F')
         return arc::RenderComponent(x, y, arc::TypeComponent::COLLECTIBLE, c, "resources/collectible.png");
     return arc::RenderComponent(x, y, arc::TypeComponent::EMPTY, c, "resources/empty.png");
 }

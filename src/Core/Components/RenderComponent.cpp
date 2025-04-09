@@ -51,3 +51,17 @@ void arc::RenderComponent::SetY(int y_setter)
 {
     y_position = y_setter;
 }
+
+void arc::RenderComponent::SetType(TypeComponent type_setter)
+{
+    type = type_setter;
+}
+
+void arc::RenderComponent::SetCharacter(char character_setter)
+{
+    character = character_setter;
+}
+void arc::RenderComponent::SetFilePath(std::string filePath_setter)
+{
+    filePath = filePath_setter;
+}

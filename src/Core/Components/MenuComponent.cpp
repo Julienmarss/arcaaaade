@@ -6,16 +6,25 @@
 */
 
 #include "Core/Components/MenuComponent.hpp"
+#include "Core/Components/TextComponent.hpp"
 
-
-void arc::MenuComponent::AddItem(const std::string& item)
+arc::MenuComponent::MenuComponent()
+    : selectedIndex(0), title(0, 0, "", arc::Colors::WHITE)
+{
+}
+void arc::MenuComponent::AddItem(const arc::TextComponent& item)
 {
     items.push_back(item);
 }
 
-void arc::MenuComponent::RemoveItem(const std::string& item)
+void arc::MenuComponent::RemoveItem(const arc::TextComponent& item)
 {
-    items.erase(std::remove(items.begin(), items.end(), item), items.end());
+    for (auto it = items.begin(); it != items.end(); ++it) {
+        if (it->GetText() == item.GetText()) {
+            items.erase(it);
+            break;
+        }
+    }
 }
 
 void arc::MenuComponent::Select(int index)
@@ -35,22 +44,22 @@ int arc::MenuComponent::GetSelectedIndex() const
     return selectedIndex;
 }
 
-void arc::MenuComponent::SetTitle(const std::string& menuTitle)
+void arc::MenuComponent::SetTitle(const arc::TextComponent& menuTitle)
 {
     title = menuTitle;
 }
 
-std::string arc::MenuComponent::GetSelectedItem() const
+arc::TextComponent arc::MenuComponent::GetSelectedItem() const
 {
     return items[selectedIndex];
 }
 
-std::string arc::MenuComponent::GetTitle() const
+arc::TextComponent arc::MenuComponent::GetTitle() const
 {
     return title;
 }
 
-std::vector<std::string> arc::MenuComponent::GetItems() const
+std::vector<arc::TextComponent> arc::MenuComponent::GetItems() const
 {
     return items;
 }

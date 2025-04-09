@@ -56,7 +56,21 @@ void *arc::DLLoader<T>::getHandle() const
 template<typename T>
 bool arc::DLLoader<T>::isGraphical() const
 {
-    return true;
+    if (libPath.find("arcade_ndk++.so") != std::string::npos ||
+        libPath.find("arcade_aalib.so") != std::string::npos ||
+        libPath.find("arcade_libcaca.so") != std::string::npos ||
+        libPath.find("arcade_allegro5.so") != std::string::npos ||
+        libPath.find("arcade_xlib.so") != std::string::npos ||
+        libPath.find("arcade_gtk+.so") != std::string::npos ||
+        libPath.find("arcade_sfml.so") != std::string::npos ||
+        libPath.find("arcade_irrlicht.so") != std::string::npos ||
+        libPath.find("arcade_opengl.so") != std::string::npos ||
+        libPath.find("arcade_ncurses.so") != std::string::npos ||
+        libPath.find("arcade_vulkan.so") != std::string::npos ||
+        libPath.find("arcade_qt5.so") != std::string::npos) {
+            return true;
+    }
+    return false;
 }
 
 template class arc::DLLoader<arc::IGraphicLibrary>;

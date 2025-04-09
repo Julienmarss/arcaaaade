@@ -7,7 +7,7 @@
 
 #include "Core/MenuManager.hpp"
 
-arc::MenuManager::MenuManager(std::vector<std::shared_ptr<IGraphicLibrary>> _libraries, std::vector<std::shared_ptr<IGameLibrary>> _games, std::string username) : _state(arc::ArcadeState::LIB_MENU), _username(username) {
+arc::MenuManager::MenuManager(std::vector<std::shared_ptr<IGraphicLibrary>> _libraries, std::vector<std::shared_ptr<IGameLibrary>> _games, std::string username) : _state(arc::ArcadeState::LIB_MENU), _libraries(_libraries),_games(_games), _username(username) {
     loadMenus(_libraries, _games);
 }
 
@@ -15,29 +15,50 @@ arc::MenuManager::~MenuManager() {
 }
 
 void arc::MenuManager::loadMenus(std::vector<std::shared_ptr<IGraphicLibrary>> _libraries, std::vector<std::shared_ptr<IGameLibrary>> _games) {
-    (void)_libraries;
-    (void)_games;
     MenuComponent libMenu;
-    libMenu.SetTitle("Choose the library");
-    libMenu.AddItem("SFML");
-    libMenu.AddItem("Ncurses");
+    TextComponent libTitle(100, 100, "Choose the library", arc::Colors::WHITE);
+    libTitle.SetCharacterSize(20);
+    libMenu.SetTitle(libTitle);
+    int i = 0;
+    for (const auto& lib : _libraries) {
+        TextComponent text(100, 100 + i, lib->GetName(), arc::Colors::WHITE);
+        std::cout << "Library name: " << lib->GetName() << std::endl;
+        libMenu.AddItem(text);
+        i = i + 50;
+    }
     _menus.push_back(libMenu);
 
     MenuComponent gameMenu;
-    gameMenu.SetTitle("Choose the game");
-    gameMenu.AddItem("Pacman");
-    gameMenu.AddItem("Nibbler");
-    gameMenu.AddItem("Snake");
+    TextComponent gameTitle(100, 100, "Choose the game", arc::Colors::WHITE);
+    gameTitle.SetCharacterSize(20);
+
+    gameMenu.SetTitle(gameTitle);
+    i = 0;
+    for (const auto& game : _games) {
+        TextComponent text(100, 100 + i, game->GetName(), arc::Colors::WHITE);
+        gameMenu.AddItem(text);
+        i = i + 50;
+    }
     _menus.push_back(gameMenu);
 
     MenuComponent usernameMenu;
-    usernameMenu.SetTitle("Change username");
-    usernameMenu.AddItem(_username);
+    TextComponent usernameTitle(100, 100, "Change username", arc::Colors::WHITE);
+    usernameTitle.SetCharacterSize(20);
+    usernameMenu.SetTitle(usernameTitle);
+    TextComponent username(100, 100 + 50, _username, arc::Colors::WHITE);
+    usernameMenu.AddItem(username);
     _menus.push_back(usernameMenu);
 
     MenuComponent playingMenu;
-    playingMenu.SetTitle("Playing as ");
+    TextComponent playingTitle(100, 100, "Playing", arc::Colors::WHITE);
+    playingTitle.SetCharacterSize(20);
+    TextComponent usernameText(100, 100 + 50, _username, arc::Colors::WHITE);
+    playingMenu.SetTitle(playingTitle);
+    playingMenu.AddItem(usernameText);
     _menus.push_back(playingMenu);
+
+    this->_libraries = _libraries;
+    this->_games = _games;
 }
 
 bool arc::MenuManager::processEvent(Event event, char key) {
@@ -48,7 +69,7 @@ bool arc::MenuManager::processEvent(Event event, char key) {
             _menus[0].Select(_menus[0].GetSelectedIndex() + 1);
         } else if (event == Event::ENTER) {
             _state = arc::ArcadeState::GAME_MENU;
-            replaceCurrentTitleMenu("You have " + _menus[0].GetSelectedItem() + " library. You can now select a game.");
+            replaceCurrentTitleMenu("You have " + _menus[0].GetSelectedItem().GetText() + " library. You can now select a game.");
         } else if (event == Event::ESCAPE) {
             return false;
         }
@@ -59,7 +80,7 @@ bool arc::MenuManager::processEvent(Event event, char key) {
             _menus[1].Select(_menus[1].GetSelectedIndex() + 1);
         } else if (event == Event::ENTER) {
             _state = arc::ArcadeState::CHANGE_USERNAME;
-            replaceCurrentTitleMenu("Playing " + _menus[1].GetSelectedItem() + ". You can now change your username.");
+            replaceCurrentTitleMenu("Playing " + _menus[1].GetSelectedItem().GetText() + ". You can now change your username.");
         } else if (event == Event::ESCAPE) {
             replaceCurrentTitleMenu("Choose the library");
             _state = arc::ArcadeState::LIB_MENU;
@@ -74,9 +95,25 @@ bool arc::MenuManager::processEvent(Event event, char key) {
             }
         } else if (event == Event::ENTER) {
             _state = arc::ArcadeState::IN_GAME;
-            // auto game = _games.at(_menus[1].GetSelectedIndex()).get();
-            // std::cout << "Loading game: " << game->GetName() << std::endl;
-            //this->_gameManager.LoadGame(_username, game);
+            IGameLibrary* game = nullptr;
+            for (auto& g : _games) {
+                if (g->GetName() == _menus[1].GetSelectedItem().GetText()) {
+                    game = g.get();
+                    break;
+                }
+            }
+            if (game == nullptr) {
+                throw ApplicationError("Game not found.");
+            }
+            IGraphicLibrary* library = nullptr;
+            for (auto& l : _libraries) {
+                if (l->GetName() == _menus[0].GetSelectedItem().GetText()) {
+                    library = l.get();
+                    break;
+                }
+            }
+            _gameManager.LoadGame(_username, game, library);
+            _game = game;
         } else if (event == Event::ESCAPE) {
             replaceCurrentTitleMenu("Choose the game");
             _state = arc::ArcadeState::GAME_MENU;
@@ -129,13 +166,13 @@ void arc::MenuManager::setState(arc::ArcadeState newState) {
 
 void arc::MenuManager::replaceCurrentTitleMenu(const std::string &title) {
     if (_state == arc::ArcadeState::LIB_MENU) {
-        _menus[0].SetTitle(title);
+        _menus[0].GetTitle().SetText(title);
     } else if (_state == arc::ArcadeState::GAME_MENU) {
-        _menus[1].SetTitle(title);
+        _menus[1].GetTitle().SetText(title);
     } else if (_state == arc::ArcadeState::CHANGE_USERNAME) {
-        _menus[2].SetTitle(title);
+        _menus[2].GetTitle().SetText(title);
     } else if (_state == arc::ArcadeState::IN_GAME) {
-        _menus[3].SetTitle(title);
+        _menus[3].GetTitle().SetText(title);
     } else {
         throw ApplicationError("No menu available in the current state.");
     }
@@ -149,15 +186,19 @@ const std::string& arc::MenuManager::getUsername() const {
     return _username;
 }
 void arc::MenuManager::updateUsername(const std::string &username) {
-    _menus[2].RemoveItem(_menus[2].GetSelectedItem());
-    _menus[2].AddItem(username);
-    replaceCurrentTitleMenu("Playing " + _menus[1].GetSelectedItem() + ". You can now change your username.");
+    std::cout << "Updating username to: " << username << std::endl;
+    _menus[2].RemoveItem(_menus[2].GetItems()[0]);
+    _menus[2].AddItem(TextComponent(100, 100 + 50, username, arc::Colors::WHITE));
+    replaceCurrentTitleMenu("Playing " + _menus[1].GetSelectedItem().GetText() + ". You can now change your username.");
+}
+const arc::TextComponent arc::MenuManager::getCurrentText() const {
+    return this->_gameManager.getCurrentText();
 }
 
-const std::vector<std::vector<arc::RenderComponent>> arc::MenuManager::getCurrentMap() const {
-    return this->_gameManager.getCurrentMap();
+const arc::IGameLibrary* arc::MenuManager::getCurrentGame() const {
+    return this->_game;
 }
 
-int arc::MenuManager::getCurrentScore() const {
-    return this->_gameManager.getCurrentScore();
+arc::IGameLibrary* arc::MenuManager::getCurrentGame() {
+    return this->_game;
 }

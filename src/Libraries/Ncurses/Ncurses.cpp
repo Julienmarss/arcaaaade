@@ -96,8 +96,8 @@ void arc::display::Ncurses::DrawComponent(const arc::RenderComponent &component)
 void arc::display::Ncurses::DrawMap(const std::vector<std::vector<arc::RenderComponent>> &map)
 {
     clear();
+    this->middle = (getmaxx(stdscr) / 2) - (map[0].size() / 2);
     for (auto &line : map) {
-        this->middle = (getmaxx(stdscr) / 2) - (line.size() / 2);
         for (auto &component : line) {
             this->DrawComponent(component);
         }
@@ -107,7 +107,11 @@ void arc::display::Ncurses::DrawMap(const std::vector<std::vector<arc::RenderCom
 
 void arc::display::Ncurses::DrawText(const arc::TextComponent &text)
 {
-    (void)text;
+    clear();
+    attron(COLOR_PAIR(1));
+    mvprintw(text.GetX(), text.GetY(), "%s", text.GetText().c_str());
+    attroff(COLOR_PAIR(1));
+    refresh();
 }
 
 void arc::display::Ncurses::DrawMenu(const arc::MenuComponent &menu)
@@ -115,15 +119,15 @@ void arc::display::Ncurses::DrawMenu(const arc::MenuComponent &menu)
     int size = getmaxx(stdscr);
     int y = getmaxy(stdscr);
     int i = (y / 2) - (menu.GetItems().size() / 2);
-    int x = (size / 2) - (menu.GetTitle().size() / 2);
+    int x = (size / 2) - (menu.GetTitle().GetText().size() / 2);
     attron(COLOR_PAIR(1));
-    mvprintw(i, x, "%s \n", menu.GetTitle().c_str());
+    mvprintw(i, x, "%s \n", menu.GetTitle().GetText().c_str());
     i++;
     for (auto &item : menu.GetItems()) {
-        if (menu.GetSelectedItem() == item)
-            mvprintw(i + 1, x, "> %s \n", item.c_str());
+        if (menu.GetSelectedItem().GetText() == item.GetText())
+            mvprintw(i + 1, x, "> %s \n", item.GetText().c_str());
         else
-            mvprintw(i + 1, x, "%s \n", item.c_str());
+            mvprintw(i + 1, x, "%s \n", item.GetText().c_str());
         i++;
     }
     attroff(COLOR_PAIR(1));
@@ -177,12 +181,13 @@ void arc::display::Ncurses::Open()
     keypad(stdscr, TRUE);
 }
 
-void arc::display::Ncurses::DrawScore(const int &score)
+void arc::display::Ncurses::DrawScore(const int &score, const arc::TextComponent &text)
 {
-    (void)score;
-    // mvprintw(0, 0, "Score: %d", score);
+    attron(COLOR_PAIR(1));
+    mvprintw(text.GetX(), text.GetY(), "%s", std::to_string(score).c_str());
+    attroff(COLOR_PAIR(1));
+    refresh();
 }
-
 void arc::display::Ncurses::LaunchMusic(std::string filepath)
 {
     (void)filepath;

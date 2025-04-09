@@ -7,7 +7,7 @@
 
 #include "Core/GameManager.hpp"
 
-arc::GameManager::GameManager()
+arc::GameManager::GameManager() : _text(0, 0, "Score : 0", arc::Colors::WHITE)
 {
     _score = 0;
 }
@@ -15,35 +15,21 @@ arc::GameManager::~GameManager()
 {
 }
 
-void arc::GameManager::LoadGame(const std::string &username, IGameLibrary *game)
+void arc::GameManager::LoadGame(const std::string &username, IGameLibrary *game, IGraphicLibrary *library)
 {
-    _score = 0;
-    game->InitGame(); 
-    game->CloseGame();
-    this->_map = this->_mapManager.getMap(game->GetName());
-    (void) username;
+    this->_game = game;
+    std::vector<std::vector<arc::RenderComponent>> map = this->_mapManager.getMap(game->GetName());
+    game->AddMap(map);
+    game->InitGame();
+    (void)username;
+    (void)library;
 }
 
 void arc::GameManager::run()
 {
 }
 
-std::vector<std::vector<arc::RenderComponent>> arc::GameManager::getCurrentMap() const
+arc::TextComponent arc::GameManager::getCurrentText() const
 {
-    return _map;
-}
-
-int arc::GameManager::getCurrentScore() const
-{
-    return _score;
-}
-
-void arc::GameManager::displayMap()
-{
-    for (auto &line : _map) {
-        for (auto &component : line) {
-            std::cout << component.GetCharacter();
-        }
-        std::cout << std::endl;
-    }
+    return _text;
 }

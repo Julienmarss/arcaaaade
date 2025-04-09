@@ -11,7 +11,6 @@
 #include <vector>
 #include "Core/Click.hpp"
 #include "Core/Event.hpp"
-#include "Core/Components/IObject.hpp"
 #include "Core/Components/RenderComponent.hpp"
 #include <map>
 #include <any>
@@ -30,10 +29,13 @@ namespace arc::games {
             virtual std::string GetName() const = 0;
             virtual void InitGame() = 0;
             virtual void CloseGame() = 0;
+            virtual void AddMap(std::vector<std::vector<arc::RenderComponent>> map) = 0;
+            virtual std::vector<std::vector<arc::RenderComponent>> GetMap() const = 0;
         protected:
             unsigned int _score = 0;
             std::string _gameName;
             bool _gameOver = false;
+            std::vector<std::vector<arc::RenderComponent>> _map;
             std::map<std::string, std::vector<arc::RenderComponent>> _objects;
         private:
     };

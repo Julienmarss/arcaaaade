@@ -14,6 +14,7 @@ SRC     = Core/DLLoader.cpp \
 		  Core/Abstract/AGameLibrary.cpp \
 		  Core/Components/RenderComponent.cpp \
 		  Core/Components/MenuComponent.cpp \
+		  Core/Components/TextComponent.cpp \
 		  Core/MapManager.cpp \
 		  Core/GameManager.cpp \
 		  Main.cpp
