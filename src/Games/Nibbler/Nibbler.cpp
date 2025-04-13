@@ -13,6 +13,7 @@
 #include <iostream>
 #include <ctime>
 #include <cstdlib>
+#include <memory>
 
 extern "C" void *entryPoint() {
     return new arc::games::Nibbler();
@@ -34,8 +35,8 @@ void arc::games::Nibbler::changePlayerPosition(int x, int y)
     std::vector<std::pair<int, int>> oldPositions = _snake;
     
     // Remove the head from its current position
-    this->_map[_snake[0].first][_snake[0].second].SetType(arc::TypeComponent::EMPTY);
-    this->_map[_snake[0].first][_snake[0].second].SetCharacter(' ');
+    this->_map[_snake[0].first][_snake[0].second]->SetType(arc::TypeComponent::EMPTY);
+    this->_map[_snake[0].first][_snake[0].second]->SetCharacter(' ');
     
     // Move the head to the new position
     _snake[0].first += x;
@@ -43,16 +44,16 @@ void arc::games::Nibbler::changePlayerPosition(int x, int y)
     _playerHead = _snake[0];
 
     // Update head on the map
-    this->_map[_snake[0].first][_snake[0].second].SetType(arc::TypeComponent::PLAYER);
-    this->_map[_snake[0].first][_snake[0].second].SetCharacter('O');
+    this->_map[_snake[0].first][_snake[0].second]->SetType(arc::TypeComponent::PLAYER);
+    this->_map[_snake[0].first][_snake[0].second]->SetCharacter('O');
     
     // Update all body segments
     for (size_t i = 1; i < _snake.size(); i++) {
-        this->_map[_snake[i].first][_snake[i].second].SetType(arc::TypeComponent::EMPTY);
-        this->_map[_snake[i].first][_snake[i].second].SetCharacter(' ');
+        this->_map[_snake[i].first][_snake[i].second]->SetType(arc::TypeComponent::EMPTY);
+        this->_map[_snake[i].first][_snake[i].second]->SetCharacter(' ');
         _snake[i] = oldPositions[i - 1];
-        this->_map[_snake[i].first][_snake[i].second].SetType(arc::TypeComponent::PLAYER);
-        this->_map[_snake[i].first][_snake[i].second].SetCharacter('o');
+        this->_map[_snake[i].first][_snake[i].second]->SetType(arc::TypeComponent::PLAYER);
+        this->_map[_snake[i].first][_snake[i].second]->SetCharacter('o');
     }
 }
 
@@ -61,8 +62,8 @@ void arc::games::Nibbler::addSnakePart(int x, int y)
     std::pair<int, int> newPart = {x, y};
     _snake.push_back(newPart);
     
-    this->_map[x][y].SetType(arc::TypeComponent::PLAYER);
-    this->_map[x][y].SetCharacter('o');
+    this->_map[x][y]->SetType(arc::TypeComponent::PLAYER);
+    this->_map[x][y]->SetCharacter('o');
     _score += 10; // More points for Nibbler compared to Snake
 }
 
@@ -75,9 +76,9 @@ bool arc::games::Nibbler::isValidPosition(int x, int y) const
     }
     
     // Check if position is a wall or a snake segment
-    if (_map[x][y].GetType() == arc::TypeComponent::WALL ||
-        (_map[x][y].GetType() == arc::TypeComponent::PLAYER && 
-         _map[x][y].GetCharacter() == 'o')) {
+    if (_map[x][y]->GetType() == arc::TypeComponent::WALL ||
+        (_map[x][y]->GetType() == arc::TypeComponent::PLAYER && 
+         _map[x][y]->GetCharacter() == 'o')) {
         return false;
     }
     
@@ -90,23 +91,24 @@ bool arc::games::Nibbler::isIntersection(int x, int y) const
     int validDirs = 0;
     
     // Check all four directions
-    if (x > 0 && _map[x-1][y].GetType() != arc::TypeComponent::WALL)
+    if (x > 0 && _map[x-1][y]->GetType() != arc::TypeComponent::WALL)
         validDirs++;
-    if (x < static_cast<int>(_map.size())-1 && _map[x+1][y].GetType() != arc::TypeComponent::WALL)
+    if (x < static_cast<int>(_map.size())-1 && _map[x+1][y]->GetType() != arc::TypeComponent::WALL)
         validDirs++;
-    if (y > 0 && _map[x][y-1].GetType() != arc::TypeComponent::WALL)
+    if (y > 0 && _map[x][y-1]->GetType() != arc::TypeComponent::WALL)
         validDirs++;
-    if (y < static_cast<int>(_map[0].size())-1 && _map[x][y+1].GetType() != arc::TypeComponent::WALL)
+    if (y < static_cast<int>(_map[0].size())-1 && _map[x][y+1]->GetType() != arc::TypeComponent::WALL)
         validDirs++;
     
     // An intersection has more than 2 possible directions
     return validDirs > 2;
 }
 
-bool arc::games::Nibbler::autoTurn(int x, int y)
+bool arc::games::Nibbler::autoTurn(int nextX, int nextY)
 {
-    // Position is blocked - need to change direction
-    // Try turning left (relative to current direction)
+    (void)nextX;
+    (void)nextY;
+
     if (_directionX != 0) { // Moving vertically
         if (isValidPosition(_playerHead.first, _playerHead.second - _directionX)) {
             _directionY = -_directionX;
@@ -141,37 +143,94 @@ void arc::games::Nibbler::InitGame()
     _directionY = 0;
     _gameOver = false;
     
-    // Find the snake head on the map
-    for (size_t i = 0; i < this->_map.size(); ++i) {
-        for (size_t j = 0; j < this->_map[i].size(); ++j) {
-            if (this->_map[i][j].GetType() == arc::TypeComponent::PLAYER) {
+    // Si la carte est vide, créons-en une
+    if (_map.empty() || _map[0].empty()) {
+        std::cerr << "Creating default map for Nibbler" << std::endl;
+        
+        int width = 20;
+        int height = 12;
+        _map.resize(height);
+        
+        for (int i = 0; i < height; i++) {
+            _map[i].resize(width);
+            for (int j = 0; j < width; j++) {
+                // Murs sur les bords
+                if (i == 0 || i == height-1 || j == 0 || j == width-1) {
+                    _map[i][j] = std::make_shared<arc::RenderComponent>(i, j, arc::TypeComponent::WALL, '#', "ressources/wall.png");
+                } else {
+                    _map[i][j] = std::make_shared<arc::RenderComponent>(i, j, arc::TypeComponent::EMPTY, ' ', "ressources/empty.png");
+                }
+            }
+        }
+        
+        // Position initiale du serpent
+        int startX = height / 2;
+        int startY = width / 2;
+        _map[startX][startY]->SetType(arc::TypeComponent::PLAYER);
+        _map[startX][startY]->SetCharacter('P');
+        _playerHead = std::make_pair(startX, startY);
+        _snake.push_back(_playerHead);
+    }
+    
+    // Trouver la tête du serpent
+    bool foundHead = false;
+    for (size_t i = 0; i < this->_map.size() && !foundHead; ++i) {
+        for (size_t j = 0; j < this->_map[i].size() && !foundHead; ++j) {
+            if (this->_map[i][j]->GetType() == arc::TypeComponent::PLAYER) {
                 _playerHead = std::make_pair(i, j);
                 _snake.push_back(_playerHead);
-                this->_map[i][j].SetCharacter('O');
-                break;
+                this->_map[i][j]->SetCharacter('O');
+                foundHead = true;
             }
         }
     }
     
-    // Add snake body segments (Nibbler starts with 4 segments)
+    // Si on ne trouve pas de tête, placer un serpent dans une position vide
+    if (!foundHead && !_map.empty() && !_map[0].empty()) {
+        for (size_t i = 1; i < _map.size() - 1 && !foundHead; ++i) {
+            for (size_t j = 1; j < _map[i].size() - 1 && !foundHead; ++j) {
+                if (_map[i][j]->GetType() == arc::TypeComponent::EMPTY) {
+                    _playerHead = std::make_pair(i, j);
+                    _snake.push_back(_playerHead);
+                    _map[i][j]->SetType(arc::TypeComponent::PLAYER);
+                    _map[i][j]->SetCharacter('O');
+                    foundHead = true;
+                }
+            }
+        }
+    }
+    
+    // Si toujours pas de tête après recherche, sortir
+    if (_snake.empty()) {
+        std::cerr << "Could not find or place player in map" << std::endl;
+        return;
+    }
+    
+    // Ajouter des segments de corps
     for (int i = 1; i < 4; i++) {
         if (_playerHead.first + i < static_cast<int>(this->_map.size()) && 
-            this->_map[_playerHead.first + i][_playerHead.second].GetType() != arc::TypeComponent::WALL) {
-            this->_map[_playerHead.first + i][_playerHead.second].SetType(arc::TypeComponent::PLAYER);
-            this->_map[_playerHead.first + i][_playerHead.second].SetCharacter('o');
+            this->_map[_playerHead.first + i][_playerHead.second]->GetType() != arc::TypeComponent::WALL) {
+            this->_map[_playerHead.first + i][_playerHead.second]->SetType(arc::TypeComponent::PLAYER);
+            this->_map[_playerHead.first + i][_playerHead.second]->SetCharacter('o');
             this->_snake.push_back(std::make_pair(_playerHead.first + i, _playerHead.second));
         }
     }
 
-    // Count initial food
+    // Faire une copie de la carte initiale pour Reset()
+    _copy = _map;
+
+    // Compter la nourriture initiale
     _foodCount = countFood();
 
-    // If no food on the map, spawn some
+    // Si pas de nourriture, en placer
     if (_foodCount == 0) {
         for (int i = 0; i < 5; i++) {
             spawnFood();
         }
     }
+    
+    std::cout << "Nibbler initialized with map size: " << _map.size() << "x" << _map[0].size() << std::endl;
+    std::cout << "Snake length: " << _snake.size() << std::endl;
 }
 
 int arc::games::Nibbler::countFood() const
@@ -179,7 +238,7 @@ int arc::games::Nibbler::countFood() const
     int count = 0;
     for (const auto &row : _map) {
         for (const auto &cell : row) {
-            if (cell.GetType() == arc::TypeComponent::COLLECTIBLE) {
+            if (cell->GetType() == arc::TypeComponent::COLLECTIBLE) {
                 count++;
             }
         }
@@ -201,11 +260,11 @@ void arc::games::Nibbler::spawnFood()
         if (attempts > MAX_ATTEMPTS) {
             return; // Avoid infinite loop if map is full
         }
-    } while (_map[x][y].GetType() != arc::TypeComponent::EMPTY);
+    } while (_map[x][y]->GetType() != arc::TypeComponent::EMPTY);
     
-    this->_map[x][y].SetType(arc::TypeComponent::COLLECTIBLE);
-    this->_map[x][y].SetCharacter('F');
-    this->_map[x][y].SetFilePath("resources/food.png");
+    this->_map[x][y]->SetType(arc::TypeComponent::COLLECTIBLE);
+    this->_map[x][y]->SetCharacter('F');
+    this->_map[x][y]->SetFilePath("ressources/food.png");
     _foodCount++;
 }
 
@@ -256,7 +315,7 @@ bool arc::games::Nibbler::Update(click state, Event key)
 
     // If hitting a wall, try to auto-turn
     if (!isValidPosition(nextX, nextY)) {
-        if (_map[nextX][nextY].GetType() == arc::TypeComponent::WALL) {
+        if (_map[nextX][nextY]->GetType() == arc::TypeComponent::WALL) {
             if (!autoTurn(nextX, nextY)) {
                 _gameOver = true;
                 return false;
@@ -272,7 +331,7 @@ bool arc::games::Nibbler::Update(click state, Event key)
     }
 
     // Handle food collection
-    if (_map[nextX][nextY].GetType() == arc::TypeComponent::COLLECTIBLE) {
+    if (_map[nextX][nextY]->GetType() == arc::TypeComponent::COLLECTIBLE) {
         changePlayerPosition(_directionX, _directionY);
         addSnakePart(nextX, nextY);
         _foodCount--;
@@ -283,14 +342,14 @@ bool arc::games::Nibbler::Update(click state, Event key)
                 spawnFood();
             }
         }
-    } else if (_map[nextX][nextY].GetType() == arc::TypeComponent::EMPTY) {
+    } else if (_map[nextX][nextY]->GetType() == arc::TypeComponent::EMPTY) {
         changePlayerPosition(_directionX, _directionY);
     }
     
     return true;
 }
 
-void arc::games::Nibbler::AddObject(std::string name, arc::RenderComponent component)
+void arc::games::Nibbler::AddObject(std::string name, std::shared_ptr<arc::RenderComponent> component)
 {
     _objects[name].push_back(component);
 }
@@ -300,13 +359,13 @@ void arc::games::Nibbler::DeleteObject(std::string name)
     _objects.erase(name);
 }
 
-std::vector<arc::RenderComponent> arc::games::Nibbler::GetObjects(std::string name) const
+std::vector<std::shared_ptr<arc::RenderComponent>> arc::games::Nibbler::GetObjects(std::string name) const
 {
     auto it = _objects.find(name);
     if (it != _objects.end()) {
         return it->second;
     }
-    return std::vector<arc::RenderComponent>();
+    return std::vector<std::shared_ptr<arc::RenderComponent>>();
 }
 
 int arc::games::Nibbler::GetScore() const
@@ -330,15 +389,11 @@ void arc::games::Nibbler::Reset()
     this->_foodCount = 0;
     this->_canTurn = true;
     
-    // Reset map cells
-    for (size_t i = 0; i < this->_map.size(); ++i) {
-        for (size_t j = 0; j < this->_map[i].size(); ++j) {
-            if (this->_map[i][j].GetType() != arc::TypeComponent::WALL) {
-                this->_map[i][j].SetType(arc::TypeComponent::EMPTY);
-                this->_map[i][j].SetCharacter(' ');
-            }
-        }
-    }
+    // Reset map from the copy
+    this->_map = this->_copy;
+    
+    // Re-initialize the game
+    InitGame();
 }
 
 std::string arc::games::Nibbler::GetName() const
@@ -349,14 +404,18 @@ std::string arc::games::Nibbler::GetName() const
 void arc::games::Nibbler::CloseGame()
 {
     // Clean up any resources or game state
+    this->_map.clear();
+    this->_copy.clear();
+    this->_snake.clear();
 }
 
-void arc::games::Nibbler::AddMap(std::vector<std::vector<arc::RenderComponent>> map)
+void arc::games::Nibbler::AddMap(std::vector<std::vector<std::shared_ptr<arc::RenderComponent>>> map)
 {
     this->_map = map;
+    this->_copy = map; // Save a copy for Reset()
 }
 
-std::vector<std::vector<arc::RenderComponent>> arc::games::Nibbler::GetMap() const
+std::vector<std::vector<std::shared_ptr<arc::RenderComponent>>> arc::games::Nibbler::GetMap() const
 {
     return this->_map;
 }

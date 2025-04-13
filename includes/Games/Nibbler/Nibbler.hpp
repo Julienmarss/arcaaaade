@@ -11,6 +11,7 @@
 #include "Core/Abstract/AGameLibrary.hpp"
 #include "Core/Click.hpp"
 #include "Core/Event.hpp"
+#include <memory>
 
 namespace arc::games {
 
@@ -62,7 +63,7 @@ namespace arc::games {
          * @param name Name of the group to retrieve.
          * @return A vector of RenderComponents.
          */
-         std::vector<std::shared_ptr<arc::RenderComponent>> GetObjects(std::string name) const override;
+        std::vector<std::shared_ptr<arc::RenderComponent>> GetObjects(std::string name) const override;
 
         /**
          * @brief Gets the current score.
@@ -115,11 +116,9 @@ namespace arc::games {
         void AddMap(std::vector<std::vector<std::shared_ptr<arc::RenderComponent>>> map) override;
 
     private:
-        std::map<std::string, std::vector<arc::RenderComponent>> _objects; ///< Game objects by name.
         std::vector<std::pair<int, int>> _snake;                           ///< Snake body positions.
         std::pair<int, int> _playerHead;                                   ///< Current position of snake's head.
-        std::vector<std::vector<RenderComponent>> _map;                    ///< Current game map.
-        int _score;                                                        ///< Player score.
+        std::vector<std::vector<std::shared_ptr<arc::RenderComponent>>> _copy; ///< Copy of the initial map for Reset().
         int _directionX;                                                   ///< Current movement direction X.
         int _directionY;                                                   ///< Current movement direction Y.
         int _foodCount;                                                    ///< Count of remaining food items.
@@ -167,11 +166,11 @@ namespace arc::games {
         /**
          * @brief Auto-turns the snake when encountering obstacles.
          * 
-         * @param x X position to check.
-         * @param y Y position to check.
+         * @param nextX Next X position to check.
+         * @param nextY Next Y position to check.
          * @return True if direction was changed, false otherwise.
          */
-        bool autoTurn(int x, int y);
+        bool autoTurn(int nextX, int nextY);
 
         /**
          * @brief Count remaining food on the map.
