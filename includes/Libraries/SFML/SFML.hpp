@@ -40,7 +40,7 @@ namespace arc::display {
         SFML();
 
         /**
-         * @brief Destructor that cleans up SFML resources.
+         * @brief Destructor that cleans up SFML ressources.
          */
         ~SFML() override;
 
@@ -51,21 +51,21 @@ namespace arc::display {
         void Display() override;
         void Clear() override;
 
-        void DrawComponent(const arc::RenderComponent& component) override;
-        void DrawComponents(const std::vector<arc::RenderComponent>& components) override;
-        void DrawMap(const std::vector<std::vector<arc::RenderComponent>>& map) override;
-        void DrawMenu(const arc::MenuComponent& menu) override;
-        void DrawText(const arc::TextComponent& text) override;
-        void DrawScore(const int& score, const arc::TextComponent& text) override;
+        void DrawComponent(std::shared_ptr<arc::RenderComponent>) override;
+        void DrawComponents(std::vector<std::shared_ptr<arc::RenderComponent>> components) override;
+        void DrawMap(std::vector<std::vector<std::shared_ptr<arc::RenderComponent>>> map) override;
+        void DrawMenu(std::shared_ptr<arc::MenuComponent> menu) override;
+        void DrawText(std::shared_ptr<arc::TextComponent> text) override;
+        void DrawScore(const int& score, std::shared_ptr<arc::TextComponent>text) override;
 
         std::pair<int, int> GetMousePos() const override;
         arc::click GetMouseState() const override;
-        arc::Event HandleEvent() override;
+        Event HandleEvent() override;
         char GetKeyPressed() override;
         std::string GetName() const override;
 
-        void LoadResources(std::string filepath, arc::type type) override;
-        void UnloadResources(std::string filepath, arc::type type) override;
+        void LoadResources(std::string filepath, type type) override;
+        void UnloadResources(std::string filepath, type type) override;
         void LaunchMusic(std::string filepath) override;
         void StopMusic(std::string filepath) override;
 
@@ -75,14 +75,22 @@ namespace arc::display {
          * 
          * @param menu The menu to display.
          */
-        void changeMenu(const arc::MenuComponent& menu);
+        void changeMenu(std::shared_ptr<arc::MenuComponent> menu);
 
         /**
          * @brief Internally updates the map render state.
          * 
          * @param map The game map to render.
          */
-        void changeMap(const std::vector<std::vector<arc::RenderComponent>>& map);
+        void changeMap(std::vector<std::vector<std::shared_ptr<arc::RenderComponent>>> map);
+
+        /**
+         * @brief Maps arcade colors to SFML colors.
+         * 
+         * @param color The arcade color to map.
+         * @return The corresponding SFML color.
+         */
+        sf::Color mapColor(arc::Colors color) const;
 
         sf::RenderWindow _window; ///< SFML window object
         sf::Event _event; ///< Event handler for SFML

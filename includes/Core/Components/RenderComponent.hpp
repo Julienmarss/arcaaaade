@@ -20,15 +20,17 @@ namespace arc {
      * @brief RenderComponent class - Class that represents a render component with a position, a type, a character and a file path
      */
     class RenderComponent {
-    public:
+        public:
         /**
          * @brief Construct a new RenderComponent object
          * @param x_initial The initial x position
          * @param y_initial The initial y position
+         * @param type_initial The initial type
          * @param character_initial The initial character
          * @param filePath_initial The initial file path
          */
-        RenderComponent(int x_initial, int y_initial, char character_initial, const std::string& filePath_initial);
+        RenderComponent(int x_initial, int y_initial, TypeComponent type_initial, 
+                       char character_initial, const std::string& filePath_initial);
 
         /**
          * @brief Get the x position of the component

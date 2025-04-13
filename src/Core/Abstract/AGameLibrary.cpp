@@ -8,6 +8,7 @@
 #include "Core/Abstract/AGameLibrary.hpp"
 #include "Core/Components/RenderComponent.hpp"
 #include <map>
+#include <memory>
 
 bool arc::games::AGameLibrary::IsGameOver() const 
 {
@@ -19,7 +20,7 @@ int arc::games::AGameLibrary::GetScore() const
     return _score;
 }
 
-void arc::games::AGameLibrary::AddObject(std::string name, arc::RenderComponent object)
+void arc::games::AGameLibrary::AddObject(std::string name, std::shared_ptr<arc::RenderComponent> object)
 {
     _objects[name].push_back(object);
 }
@@ -33,17 +34,17 @@ void arc::games::AGameLibrary::DeleteObject(std::string name)
     _objects.erase(name);
 }
 
-std::vector<arc::RenderComponent> arc::games::AGameLibrary::GetObjects(std::string name) const
+std::vector<std::shared_ptr<arc::RenderComponent>> arc::games::AGameLibrary::GetObjects(std::string name) const
 {
     return _objects.at(name);
 }
 
-void arc::games::AGameLibrary::AddMap(std::vector<std::vector<arc::RenderComponent>> map)
+void arc::games::AGameLibrary::AddMap(std::vector<std::vector<std::shared_ptr<arc::RenderComponent>>> map)
 {
     _map = map;
 }
 
-std::vector<std::vector<arc::RenderComponent>> arc::games::AGameLibrary::GetMap() const
+std::vector<std::vector<std::shared_ptr<arc::RenderComponent>>> arc::games::AGameLibrary::GetMap() const
 {
     return _map;
 }

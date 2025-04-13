@@ -47,7 +47,7 @@ namespace arc::games {
          * @param name Name identifier for the object group.
          * @param component The RenderComponent to add.
          */
-        void AddObject(std::string name, arc::RenderComponent component);
+        void AddObject(std::string name, std::shared_ptr<arc::RenderComponent> component);
 
         /**
          * @brief Deletes a group of objects by name.
@@ -62,7 +62,7 @@ namespace arc::games {
          * @param name Name of the group to retrieve.
          * @return A vector of RenderComponents.
          */
-        std::vector<arc::RenderComponent> GetObjects(std::string name) const;
+        std::vector<std::shared_ptr<arc::RenderComponent>> GetObjects(std::string name) const;
 
         /**
          * @brief Gets the current score.
@@ -105,20 +105,21 @@ namespace arc::games {
          * 
          * @return A 2D vector of RenderComponents.
          */
-        std::vector<std::vector<arc::RenderComponent>> GetMap() const override;
+        std::vector<std::vector<std::shared_ptr<arc::RenderComponent>>> GetMap() const override;
 
         /**
          * @brief Adds or sets the current game map.
          * 
          * @param map The new game map to use.
          */
-        void AddMap(std::vector<std::vector<arc::RenderComponent>> map) override;
+        void AddMap(std::vector<std::vector<std::shared_ptr<arc::RenderComponent>>>) override;
 
     private:
-        std::map<std::string, std::vector<arc::RenderComponent>> _objects; ///< Game objects by name.
+        std::map<std::string, std::vector<std::shared_ptr<arc::RenderComponent>>> _objects; ///< Game objects by name.
         std::vector<std::pair<int, int>> _snake;                           ///< Snake body positions.
         std::pair<int, int> _playerHead;                                   ///< Current position of snake's head.
-        std::vector<std::vector<RenderComponent>> _map;                    ///< Current game map.
+        std::vector<std::vector<std::shared_ptr<arc::RenderComponent>>> _map;                    ///< Current game map.
+        std::vector<std::vector<std::shared_ptr<arc::RenderComponent>>> _copy;                    ///< Current game map copy.
         int _score;                                                        ///< Player score.
         int _directionX;                                                   ///< Current movement direction X.
         int _directionY;                                                   ///< Current movement direction Y.

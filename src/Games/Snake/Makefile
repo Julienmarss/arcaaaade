@@ -7,7 +7,8 @@
 
 NAME = arcade_snake.so
 
-SRC = Snake.cpp
+SRC = Snake.cpp \
+	  ../../Core/Components/RenderComponent.cpp
 
 OBJ = $(SRC:.cpp=.o)
 

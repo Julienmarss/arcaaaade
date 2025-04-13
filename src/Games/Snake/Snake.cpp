@@ -28,22 +28,22 @@ void arc::games::Snake::changePlayerPosition(int x, int y)
 {
     std::vector<std::pair<int, int>> oldPositions = _snake;
     
-    this->_map[_snake[0].first][_snake[0].second].SetType(arc::TypeComponent::EMPTY);
-    this->_map[_snake[0].first][_snake[0].second].SetCharacter(' ');
+    this->_map[_snake[0].first][_snake[0].second]->SetType(arc::TypeComponent::EMPTY);
+    this->_map[_snake[0].first][_snake[0].second]->SetCharacter(' ');
     
     _snake[0].first += x;
     _snake[0].second += y;
     _playerHead = _snake[0];
 
-    this->_map[_snake[0].first][_snake[0].second].SetType(arc::TypeComponent::PLAYER);
-    this->_map[_snake[0].first][_snake[0].second].SetCharacter('O');
+    this->_map[_snake[0].first][_snake[0].second]->SetType(arc::TypeComponent::PLAYER);
+    this->_map[_snake[0].first][_snake[0].second]->SetCharacter('O');
     
     for (size_t i = 1; i < _snake.size(); i++) {
-        this->_map[_snake[i].first][_snake[i].second].SetType(arc::TypeComponent::EMPTY);
-        this->_map[_snake[i].first][_snake[i].second].SetCharacter(' ');
+        this->_map[_snake[i].first][_snake[i].second]->SetType(arc::TypeComponent::EMPTY);
+        this->_map[_snake[i].first][_snake[i].second]->SetCharacter(' ');
         _snake[i] = oldPositions[i - 1];
-        this->_map[_snake[i].first][_snake[i].second].SetType(arc::TypeComponent::PLAYER);
-        this->_map[_snake[i].first][_snake[i].second].SetCharacter('o');
+        this->_map[_snake[i].first][_snake[i].second]->SetType(arc::TypeComponent::PLAYER);
+        this->_map[_snake[i].first][_snake[i].second]->SetCharacter('o');
     }
 }
 
@@ -52,34 +52,39 @@ void arc::games::Snake::addSnakePart(int x, int y)
     std::pair<int, int> newPart = {x, y};
     _snake.push_back(newPart);
     
-    this->_map[x][y].SetType(arc::TypeComponent::PLAYER);
-    this->_map[x][y].SetCharacter('o');
+    this->_map[x][y]->SetType(arc::TypeComponent::PLAYER);
+    this->_map[x][y]->SetCharacter('o');
     _score++;
 }
 
 void arc::games::Snake::InitGame()
 {
     _snake.clear();
+    
     _score = 0;
     _directionX = 0;
     _directionY = 0;
     _gameOver = false;
+    std::cout << "Snake initialized" << std::endl;
     
     for (size_t i = 0; i < this->_map.size(); ++i) {
         for (size_t j = 0; j < this->_map[i].size(); ++j) {
-            if (this->_map[i][j].GetType() == arc::TypeComponent::PLAYER) {
+            if (this->_map[i][j]->GetType() == arc::TypeComponent::PLAYER) {
                 _playerHead = std::make_pair(i, j);
                 _snake.push_back(_playerHead);
-                this->_map[i][j].SetCharacter('O');
+                this->_map[i][j]->SetCharacter('O');
                 break;
             }
+        }
+        if (_snake.size() > 0) {
+            break;
         }
     }
     
     for (int i = 1; i < 3; i++) {
         if (_playerHead.first + i < static_cast<int>(this->_map.size())) {
-            this->_map[_playerHead.first + i][_playerHead.second].SetType(arc::TypeComponent::PLAYER);
-            this->_map[_playerHead.first + i][_playerHead.second].SetCharacter('o');
+            this->_map[_playerHead.first + i][_playerHead.second]->SetType(arc::TypeComponent::PLAYER);
+            this->_map[_playerHead.first + i][_playerHead.second]->SetCharacter('o');
             this->_snake.push_back(std::make_pair(_playerHead.first + i, _playerHead.second));
         }
     }
@@ -90,11 +95,11 @@ void arc::games::Snake::spawnFood()
     do {
         x = rand() % _map.size();
         y = rand() % _map[0].size();
-    } while (_map[x][y].GetType() != arc::TypeComponent::EMPTY);
+    } while (_map[x][y]->GetType() != arc::TypeComponent::EMPTY);
     
-    this->_map[x][y].SetType(arc::TypeComponent::COLLECTIBLE);
-    this->_map[x][y].SetCharacter('F');
-    this->_map[x][y].SetFilePath("resources/food.png");
+    this->_map[x][y]->SetType(arc::TypeComponent::COLLECTIBLE);
+    this->_map[x][y]->SetCharacter('F');
+    this->_map[x][y]->SetFilePath("ressources/food.png");
 }
 
 bool arc::games::Snake::Update(click state, Event key)
@@ -135,22 +140,22 @@ bool arc::games::Snake::Update(click state, Event key)
         this->_gameOver = true;
         return false;
     }
-    if (_map[nextX][nextY].GetType() == arc::TypeComponent::PLAYER && 
-        _map[nextX][nextY].GetCharacter() == 'o') {
+    if (_map[nextX][nextY]->GetType() == arc::TypeComponent::PLAYER && 
+        _map[nextX][nextY]->GetCharacter() == 'o') {
         this->_gameOver = true;
         return false;
     }
-    if (_map[nextX][nextY].GetType() == arc::TypeComponent::COLLECTIBLE) {
+    if (_map[nextX][nextY]->GetType() == arc::TypeComponent::COLLECTIBLE) {
         changePlayerPosition(_directionX, _directionY);
         addSnakePart(nextX, nextY);
         spawnFood();
-    } else if (_map[nextX][nextY].GetType() == arc::TypeComponent::EMPTY) {
+    } else if (_map[nextX][nextY]->GetType() == arc::TypeComponent::EMPTY) {
         changePlayerPosition(_directionX, _directionY);
     }
     
     return true;
 }
-void arc::games::Snake::AddObject(std::string name, arc::RenderComponent)
+void arc::games::Snake::AddObject(std::string name, std::shared_ptr<arc::RenderComponent>)
 {
     (void)name;
 }
@@ -160,10 +165,10 @@ void arc::games::Snake::DeleteObject(std::string name)
     (void)name;
 }
 
-std::vector<arc::RenderComponent> arc::games::Snake::GetObjects(std::string name) const
+std::vector<std::shared_ptr<arc::RenderComponent>> arc::games::Snake::GetObjects(std::string name) const
 {
     (void)name;
-    return std::vector<arc::RenderComponent>();
+    return std::vector<std::shared_ptr<arc::RenderComponent>>();
 }
 
 int arc::games::Snake::GetScore() const
@@ -178,16 +183,7 @@ bool arc::games::Snake::IsGameOver() const
 
 void arc::games::Snake::Reset()
 {
-    this->_gameOver = false;
-    this->_score = 0;
-    this->_snake.clear();
-    this->_playerHead = std::make_pair(0, 0);
-    for (size_t i = 0; i < this->_map.size(); ++i) {
-        for (size_t j = 0; j < this->_map[i].size(); ++j) {
-            this->_map[i][j].SetType(arc::TypeComponent::EMPTY);
-            this->_map[i][j].SetCharacter(' ');
-        }
-    }
+    this->_map = this->_copy;
 }
 
 std::string arc::games::Snake::GetName() const
@@ -197,14 +193,22 @@ std::string arc::games::Snake::GetName() const
 
 void arc::games::Snake::CloseGame()
 {
+    this->_map.clear();
+    this->_copy.clear();
+    this->_gameOver = false;
+    this->_directionX = 0;
+    this->_directionY = 0;
+    std::cout << "Snake closed" << std::endl;
+
 }
 
-void arc::games::Snake::AddMap(std::vector<std::vector<arc::RenderComponent>> map)
+void arc::games::Snake::AddMap(std::vector<std::vector<std::shared_ptr<arc::RenderComponent>>> map)
 {
     this->_map = map;
+    this->_copy = map;
 }
 
-std::vector<std::vector<arc::RenderComponent>> arc::games::Snake::GetMap() const
+std::vector<std::vector<std::shared_ptr<arc::RenderComponent>>> arc::games::Snake::GetMap() const
 {
     return this->_map;
 }

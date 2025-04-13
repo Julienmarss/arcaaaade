@@ -36,7 +36,7 @@ namespace arc::display {
         virtual ~AGraphicLibrary() = default;
 
         /**
-         * @brief Initializes the graphic library (window, context, resources).
+         * @brief Initializes the graphic library (window, context, ressources).
          */
         virtual void Initialize() = 0;
 
@@ -46,7 +46,7 @@ namespace arc::display {
         virtual void Open() = 0;
 
         /**
-         * @brief Closes the display window and frees resources.
+         * @brief Closes the display window and frees ressources.
          */
         virtual void Close() = 0;
 
@@ -72,35 +72,35 @@ namespace arc::display {
          * 
          * @param component The renderable object.
          */
-        virtual void DrawComponent(const arc::RenderComponent& component) = 0;
+        virtual void DrawComponent(std::shared_ptr<arc::RenderComponent> component) = 0;
 
         /**
          * @brief Draws multiple RenderComponents at once.
          * 
          * @param components A vector of RenderComponents.
          */
-        virtual void DrawComponents(const std::vector<arc::RenderComponent>& components) = 0;
+        virtual void DrawComponents(const std::vector<std::shared_ptr<arc::RenderComponent>> components) = 0;
 
         /**
          * @brief Draws a 2D map composed of RenderComponents.
          * 
          * @param map A 2D vector of RenderComponents.
          */
-        virtual void DrawMap(const std::vector<std::vector<arc::RenderComponent>>& map) = 0;
+        virtual void DrawMap(const std::vector<std::vector<std::shared_ptr<arc::RenderComponent>>> map) = 0;
 
         /**
          * @brief Draws a menu to the screen.
          * 
          * @param map The MenuComponent to render.
          */
-        virtual void DrawMenu(const arc::MenuComponent& map) = 0;
+        virtual void DrawMenu(std::shared_ptr<arc::MenuComponent> map) = 0;
 
         /**
          * @brief Draws a text component.
          * 
          * @param text The TextComponent to render.
          */
-        virtual void DrawText(const arc::TextComponent& text) = 0;
+        virtual void DrawText(std::shared_ptr<arc::TextComponent> text) = 0;
 
         /**
          * @brief Draws a score using a text template.
@@ -108,7 +108,7 @@ namespace arc::display {
          * @param score The current score.
          * @param text The text component template.
          */
-        virtual void DrawScore(const int& score, const arc::TextComponent &text) = 0;
+        virtual void DrawScore(const int& score, std::shared_ptr<arc::TextComponent> text) = 0;
 
         /**
          * @brief Returns the current position of the mouse.
@@ -144,7 +144,7 @@ namespace arc::display {
          * @param filepath Path to the file.
          * @param type Type of resource to load.
          */
-        virtual void LoadResources(std::string filepath, arc::type type) = 0;
+        virtual void LoadResources(std::string filepath, type type) = 0;
 
         /**
          * @brief Unloads a previously loaded resource.
@@ -152,7 +152,7 @@ namespace arc::display {
          * @param filepath Path to the file.
          * @param type Type of resource to unload.
          */
-        virtual void UnloadResources(std::string filepath, arc::type type) = 0;
+        virtual void UnloadResources(std::string filepath, type type) = 0;
 
         /**
          * @brief Starts playing music from a file.

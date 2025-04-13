@@ -12,6 +12,7 @@
 #include <vector>
 #include <string>
 #include <map>
+#include <memory>
 #include "Core/Components/RenderComponent.hpp"
 
 namespace arc {
@@ -53,11 +54,11 @@ namespace arc {
          * @param name Name of the map to retrieve.
          * @return A 2D vector of RenderComponents representing the map.
          */
-        std::vector<std::vector<arc::RenderComponent>> getMap(const std::string &name) const;
+        std::vector<std::vector<std::shared_ptr<arc::RenderComponent>>> getMap(const std::string &name) const;
 
     private:
         /// Stores loaded maps identified by name.
-        std::map<std::string, std::vector<std::vector<arc::RenderComponent>>> _maps;
+        std::map<std::string, std::vector<std::vector<std::shared_ptr<arc::RenderComponent>>>> _maps;
 
         /**
          * @brief Creates a RenderComponent from position and character.
@@ -67,7 +68,7 @@ namespace arc {
          * @param c Character representing the component.
          * @return The created RenderComponent.
          */
-        arc::RenderComponent createComponent(int x, int y, char c);
+        std::shared_ptr<arc::RenderComponent> createComponent(int x, int y, char c);
     };
 
 }

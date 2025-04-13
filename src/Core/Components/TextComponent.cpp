@@ -8,7 +8,7 @@
 #include "Core/Components/TextComponent.hpp"
 
 arc::TextComponent::TextComponent(int x, int y, const std::string& text, Colors color)
-    : X(x), Y(y), Text(text), Color(color), FontPath("resources/font.ttf"), CharacterSize(16)
+    : X(x), Y(y), Text(text), Color(color), FontPath(), CharacterSize(16)
 {
 }
 int arc::TextComponent::GetX() const

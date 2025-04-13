@@ -1,7 +1,6 @@
 #ifndef TYPE_HPP
 # define TYPE_HPP
 
-namespace arc {
     enum type {
         TEXT,
         SPRITE,
@@ -10,6 +9,4 @@ namespace arc {
         SOUND,
         FONT
     };
-}
-
 #endif

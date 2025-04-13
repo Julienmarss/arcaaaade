@@ -16,7 +16,9 @@
 #include "Core/Components/MenuComponent.hpp"
 #include "ApplicationError.hpp"
 #include "Core/ArcadeState.hpp"
+#include "Core/ToggleLibManager.hpp"
 #include "Core/GameManager.hpp"
+#include "Core/ScoreboardManager.hpp"
 
 namespace arc {
 
@@ -26,27 +28,17 @@ namespace arc {
      */
     class MenuManager {
     public:
-        /**
-         * @brief Constructs the MenuManager with libraries, games, and a username.
-         * 
-         * @param _libraries Available graphic libraries.
-         * @param _games Available game libraries.
-         * @param username Player's username.
-         */
-        MenuManager(std::vector<std::shared_ptr<IGraphicLibrary>> _libraries, std::vector<std::shared_ptr<IGameLibrary>> _games, std::string username);
-
-        /**
-         * @brief Destructor for MenuManager.
-         */
-        ~MenuManager();
+MenuManager(std::vector<std::shared_ptr<IGraphicLibrary>> _libraries, std::vector<std::shared_ptr<IGameLibrary>> _games, std::string username, int selectedIndex, ScoreboardManager* scoreboardManager, ToggleLibManager *toggleLibManager);    
+    ~MenuManager();
 
         /**
          * @brief Loads and sets up the menus.
          * 
          * @param _libraries List of graphic libraries.
          * @param _games List of game libraries.
+         * @param selectedIndex Index of the selected library.
          */
-        void loadMenus(std::vector<std::shared_ptr<IGraphicLibrary>> _libraries, std::vector<std::shared_ptr<IGameLibrary>> _games);
+        void loadMenus(std::vector<std::shared_ptr<IGraphicLibrary>> _libraries, std::vector<std::shared_ptr<IGameLibrary>> _games, int selectedIndex);
 
         /**
          * @brief Processes a user input event.
@@ -62,7 +54,7 @@ namespace arc {
          * 
          * @return The current MenuComponent.
          */
-        const MenuComponent& getCurrentMenu() const;
+        std::shared_ptr<arc::MenuComponent> getCurrentMenu() const;
 
         /**
          * @brief Gets the current application state.
@@ -97,7 +89,7 @@ namespace arc {
          * 
          * @return A TextComponent containing the text.
          */
-        const arc::TextComponent getCurrentText() const;
+        std::shared_ptr<arc::TextComponent> getCurrentText() const;
 
         /**
          * @brief Gets the currently selected game.
@@ -113,21 +105,17 @@ namespace arc {
          */
         IGameLibrary* getCurrentGame();
 
-        std::vector<MenuComponent> _menus;          ///< List of menu components.
+        std::vector<std::shared_ptr<arc::MenuComponent>> _menus;          ///< List of menu components.
         arc::GameManager _gameManager;              ///< Manages the game session.
 
     private:
-        arc::ArcadeState _state;                    ///< Current state of the arcade (e.g., menu, playing).
-        std::vector<std::shared_ptr<IGraphicLibrary>> _libraries; ///< Available graphic libraries.
-        std::vector<std::shared_ptr<IGameLibrary>> _games;        ///< Available game libraries.
-        IGameLibrary *_game;                        ///< Currently selected game.
-        std::string _username;                      ///< Username of the current player.
-
-        /**
-         * @brief Replaces the title of the current menu.
-         * 
-         * @param title New title to set.
-         */
+        arc::ArcadeState _state;
+        std::vector<std::shared_ptr<IGraphicLibrary>> _libraries;
+        std::vector<std::shared_ptr<IGameLibrary>> _games;
+        IGameLibrary *_game;
+        std::string _username;
+        ToggleLibManager *_toggleLibManager;
+        ScoreboardManager *_scoreboardManager;
         void replaceCurrentTitleMenu(const std::string &title);
 
         /**
@@ -144,6 +132,15 @@ namespace arc {
          * @return True if valid, false otherwise.
          */
         bool isValidKey(char key) const;
+
+        /**
+         * @brief load next game
+         */
+        void loadNextGame();
+        /**
+         * @brief load previous game
+         */
+        void loadPreviousGame();
     };
 
 }

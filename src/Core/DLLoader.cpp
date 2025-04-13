@@ -67,7 +67,8 @@ bool arc::DLLoader<T>::isGraphical() const
         libPath.find("arcade_opengl.so") != std::string::npos ||
         libPath.find("arcade_ncurses.so") != std::string::npos ||
         libPath.find("arcade_vulkan.so") != std::string::npos ||
-        libPath.find("arcade_qt5.so") != std::string::npos) {
+        libPath.find("arcade_qt5.so") != std::string::npos ||
+        libPath.find("arcade_sdl2.so") != std::string::npos) {
             return true;
     }
     return false;

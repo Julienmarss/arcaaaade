@@ -7,22 +7,27 @@
 
 #include "Core/Components/MenuComponent.hpp"
 #include "Core/Components/TextComponent.hpp"
+#include <iostream>
 
 arc::MenuComponent::MenuComponent()
-    : selectedIndex(0), title(0, 0, "", arc::Colors::WHITE)
+    : selectedIndex(0), title(std::make_shared<arc::TextComponent>(0, 0, "", arc::Colors::WHITE))
 {
 }
-void arc::MenuComponent::AddItem(const arc::TextComponent& item)
+void arc::MenuComponent::AddItem(std::shared_ptr<arc::TextComponent> item)
 {
     items.push_back(item);
 }
 
-void arc::MenuComponent::RemoveItem(const arc::TextComponent& item)
+void arc::MenuComponent::RemoveItem(std::shared_ptr<arc::TextComponent> item)
 {
-    for (auto it = items.begin(); it != items.end(); ++it) {
-        if (it->GetText() == item.GetText()) {
-            items.erase(it);
-            break;
+    if (items.empty() || item == nullptr) {
+        return;
+    }
+    for (auto it = items.begin(); it != items.end(); ) {
+        if (*it && (*it)->GetText() == item->GetText()) {
+            it = items.erase(it);
+        } else {
+            ++it;
         }
     }
 }
@@ -44,22 +49,22 @@ int arc::MenuComponent::GetSelectedIndex() const
     return selectedIndex;
 }
 
-void arc::MenuComponent::SetTitle(const arc::TextComponent& menuTitle)
+void arc::MenuComponent::SetTitle(std::shared_ptr<arc::TextComponent> menuTitle)
 {
     title = menuTitle;
 }
 
-arc::TextComponent arc::MenuComponent::GetSelectedItem() const
+std::shared_ptr<arc::TextComponent> arc::MenuComponent::GetSelectedItem() const
 {
     return items[selectedIndex];
 }
 
-arc::TextComponent arc::MenuComponent::GetTitle() const
+std::shared_ptr<arc::TextComponent> arc::MenuComponent::GetTitle() const
 {
     return title;
 }
 
-std::vector<arc::TextComponent> arc::MenuComponent::GetItems() const
+std::vector<std::shared_ptr<arc::TextComponent>>arc::MenuComponent::GetItems() const
 {
     return items;
 }

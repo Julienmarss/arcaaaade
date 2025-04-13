@@ -8,7 +8,10 @@
 
 NAME = arcade_sfml.so
 
-SRC = SFML.cpp
+SRC = SFML.cpp \
+	../../Core/Components/RenderComponent.cpp \
+	../../Core/Components/MenuComponent.cpp \
+	../../Core/Components/TextComponent.cpp
 
 OBJ = $(SRC:.cpp=.o)
 

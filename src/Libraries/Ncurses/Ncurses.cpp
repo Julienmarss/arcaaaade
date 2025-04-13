@@ -11,6 +11,7 @@
 #include "Core/Components/TextComponent.hpp"
 #include "Core/Components/MenuComponent.hpp"
 #include "Core/Event.hpp"
+#include "Libraries/Ncurses/NcursesWrapper.hpp"
 #include <ncurses.h>
 
 
@@ -26,6 +27,7 @@ arc::display::Ncurses::~Ncurses()
 }
 void arc::display::Ncurses::Initialize()
 {
+    std::cout << "Ncurses Initialize" << std::endl;
 }
 
 void arc::display::Ncurses::Display()
@@ -34,42 +36,70 @@ void arc::display::Ncurses::Display()
 
 void arc::display::Ncurses::Close()
 {
-    endwin();
+    NcursesWrapper::end();
+    std::cout << "Ncurses Close" << std::endl;
 }
 
-arc::Event arc::display::Ncurses::HandleEvent()
+Event arc::display::Ncurses::HandleEvent()
 {
-    Event event = arc::Event::TEXT_INPUT;
-    int key = getch();
+    Event event = Event::TEXT_INPUT;
+    int key = NcursesWrapper::getChar();
     if (key == ERR) {
         this->key = 0;
-        return event;
+        return Event::TEXT_INPUT;
     }
     this->key = (char) key;
     switch (key) {
         case KEY_UP:
-            event = arc::Event::UP;
+            event = Event::UP;
             break;
         case KEY_DOWN:
-            event = arc::Event::DOWN;
+            event = Event::DOWN;
             break;
         case KEY_LEFT:
-            event = arc::Event::LEFT;
+            event = Event::LEFT;
             break;
         case KEY_RIGHT:
-            event = arc::Event::RIGHT;
+            event = Event::RIGHT;
             break;
         case '\n':
-            event = arc::Event::ENTER;
+            event = Event::ENTER;
             break;
         case 27:
-            event = arc::Event::ESCAPE;
+            event = Event::ESCAPE;
             break;
-        case KEY_DC:
         case KEY_BACKSPACE:
         case 127:
         case 8:
-            event = arc::Event::DELETE;
+            event = Event::BACKSPACE;
+            break;
+        case KEY_DC:
+            event = Event::DELETE;
+            break;
+        case 'q':
+        case 'Q':
+            event = Event::PREVIOUS_LIB;
+            this->key = 0;
+            break;
+        case 'D':
+        case 'd':
+            event = Event::NEXT_LIB;
+            this->key = 0;
+            break;
+        case 'F':
+        case 'f':
+            event = Event::PREVIOUS_GAME;
+            this->key = 0;
+            break;
+        case 'H':
+        case 'h':
+            event = Event::NEXT_GAME;
+            this->key = 0;
+            break;
+        case 'r':
+        case 'R':
+            event = Event::RESET;
+            this->key = 0;
             break;
         default:
             break;
@@ -85,53 +115,57 @@ char arc::display::Ncurses::GetKeyPressed()
     return this->key;
 }
 
-void arc::display::Ncurses::DrawComponent(const arc::RenderComponent &component)
+void arc::display::Ncurses::DrawComponent(std::shared_ptr<arc::RenderComponent> component)
 {
-    attron(COLOR_PAIR(2));
-    mvaddch(component.GetX() + 10, component.GetY() + this->middle, component.GetCharacter());
-    mvaddch(component.GetX() + 10, component.GetY() + this->middle, component.GetCharacter());
-    attroff(COLOR_PAIR(2));
+    NcursesWrapper::setAttr(2);
+    NcursesWrapper::printChar(component->GetX() + 10, component->GetY() + this->middle, component->GetCharacter());
+    NcursesWrapper::unsetAttr(2);
 }
 
-void arc::display::Ncurses::DrawMap(const std::vector<std::vector<arc::RenderComponent>> &map)
+void arc::display::Ncurses::DrawMap(std::vector<std::vector<std::shared_ptr<arc::RenderComponent>>> map)
 {
-    clear();
+    NcursesWrapper::clear();
     this->middle = (getmaxx(stdscr) / 2) - (map[0].size() / 2);
     for (auto &line : map) {
         for (auto &component : line) {
             this->DrawComponent(component);
         }
     }
-    refresh();
+    NcursesWrapper::refresh();
 }
 
-void arc::display::Ncurses::DrawText(const arc::TextComponent &text)
+void arc::display::Ncurses::DrawText(std::shared_ptr<arc::TextComponent> text)
 {
-    clear();
-    attron(COLOR_PAIR(1));
-    mvprintw(text.GetX(), text.GetY(), "%s", text.GetText().c_str());
-    attroff(COLOR_PAIR(1));
-    refresh();
+    if (text->GetX() == 0 && text->GetY() == 0) {
+        text->SetY((NcursesWrapper::getMaxY() / 2) - (text->GetText().size() / 2));
+    }
+    if (text->GetX() % 25 == 0) {
+        text->SetX((NcursesWrapper::getMaxX() / 2) - (text->GetText().size() / 2));
+    }
+    if (text->GetY() % 25 == 0) {
+        text->SetY((NcursesWrapper::getMaxY() / 2) - (text->GetText().size() / 2));
+    }
+    NcursesWrapper::print(text->GetX(), text->GetY(), text->GetText(), "");
 }
 
-void arc::display::Ncurses::DrawMenu(const arc::MenuComponent &menu)
+void arc::display::Ncurses::DrawMenu(std::shared_ptr<arc::MenuComponent> menu)
 {
-    int size = getmaxx(stdscr);
-    int y = getmaxy(stdscr);
-    int i = (y / 2) - (menu.GetItems().size() / 2);
-    int x = (size / 2) - (menu.GetTitle().GetText().size() / 2);
-    attron(COLOR_PAIR(1));
-    mvprintw(i, x, "%s \n", menu.GetTitle().GetText().c_str());
+    int size = NcursesWrapper::getMaxX();
+    int y = NcursesWrapper::getMaxY();
+    int i = (y / 2) - (menu->GetItems().size() / 2);
+    int x = (size / 2) - (menu->GetTitle()->GetText().size() / 2);
+    NcursesWrapper::setAttr(1);
+    NcursesWrapper::print(x, i, menu->GetTitle()->GetText());
     i++;
-    for (auto &item : menu.GetItems()) {
-        if (menu.GetSelectedItem().GetText() == item.GetText())
-            mvprintw(i + 1, x, "> %s \n", item.GetText().c_str());
+    for (auto &item : menu->GetItems()) {
+        if (menu->GetSelectedItem()->GetText() == item->GetText())
+            NcursesWrapper::print(x, i, "> %s \n", item->GetText());
         else
-            mvprintw(i + 1, x, "%s \n", item.GetText().c_str());
+            NcursesWrapper::print(x, i, "  %s \n", item->GetText());
         i++;
     }
-    attroff(COLOR_PAIR(1));
-    refresh();
+    NcursesWrapper::unsetAttr(1);
+    NcursesWrapper::refresh();
 }
 
 std::string arc::display::Ncurses::GetName() const
@@ -141,7 +175,7 @@ std::string arc::display::Ncurses::GetName() const
 
 void arc::display::Ncurses::Clear()
 {
-    clear();
+    NcursesWrapper::clear();
 }
 
 bool arc::display::Ncurses::IsOpen()
@@ -159,7 +193,7 @@ arc::click arc::display::Ncurses::GetMouseState() const
     return arc::click::NOTHING;
 }
 
-void arc::display::Ncurses::DrawComponents(const std::vector<arc::RenderComponent> &components)
+void arc::display::Ncurses::DrawComponents(std::vector<std::shared_ptr<arc::RenderComponent>> components)
 {
     for (auto &component : components) {
         this->DrawComponent(component);
@@ -168,25 +202,17 @@ void arc::display::Ncurses::DrawComponents(const std::vector<arc::RenderComponen
 
 void arc::display::Ncurses::Open()
 {
-    std::cout << "Ncurses start" << std::endl;
-    initscr();
-    nodelay(stdscr, TRUE);
-    scroll(stdscr);
-    scrollok(stdscr, TRUE);
-    curs_set(0);
-    start_color();
-    init_pair(1, COLOR_RED, COLOR_BLACK);
-    cbreak();
-    noecho();
-    keypad(stdscr, TRUE);
+    std::cout << "Ncurses open" << std::endl;
+    NcursesWrapper::init();
+    NcursesWrapper::setupWindow();
 }
 
-void arc::display::Ncurses::DrawScore(const int &score, const arc::TextComponent &text)
+void arc::display::Ncurses::DrawScore(const int &score, std::shared_ptr<arc::TextComponent> text)
 {
-    attron(COLOR_PAIR(1));
-    mvprintw(text.GetX(), text.GetY(), "%s", std::to_string(score).c_str());
-    attroff(COLOR_PAIR(1));
-    refresh();
+    NcursesWrapper::setAttr(1);
+    NcursesWrapper::print(text->GetX(), text->GetY(), text->GetText() + " : " + std::to_string(score));
+    NcursesWrapper::unsetAttr(1);
+    NcursesWrapper::refresh();
 }
 void arc::display::Ncurses::LaunchMusic(std::string filepath)
 {
@@ -198,13 +224,13 @@ void arc::display::Ncurses::StopMusic(std::string filepath)
     (void)filepath;
 }
 
-void arc::display::Ncurses::LoadResources(std::string filepath, arc::type type)
+void arc::display::Ncurses::LoadResources(std::string filepath, type type)
 {
     (void)filepath;
     (void)type;
 }
 
-void arc::display::Ncurses::UnloadResources(std::string filepath, arc::type type)
+void arc::display::Ncurses::UnloadResources(std::string filepath, type type)
 {
     (void)filepath;
     (void)type;

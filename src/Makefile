@@ -15,6 +15,8 @@ SRC     = Core/DLLoader.cpp \
 		  Core/Components/RenderComponent.cpp \
 		  Core/Components/MenuComponent.cpp \
 		  Core/Components/TextComponent.cpp \
+		  Core/ToggleLibManager.cpp \
+		  Core/ScoreboardManager.cpp \
 		  Core/MapManager.cpp \
 		  Core/GameManager.cpp \
 		  Main.cpp
@@ -23,7 +25,7 @@ SRC     = Core/DLLoader.cpp \
 OBJ     = $(SRC:.cpp=.o)
 
 CXX     = g++
-CXXFLAGS= -Wall -Wextra -Werror -std=c++20 -fPIC -fno-gnu-unique -I ../includes -rdynamic -g
+CXXFLAGS= -Wall -Wextra -Werror -std=c++20 -fPIC -fno-gnu-unique -I ../includes
 LDFLAGS = -ldl
 
 all: $(NAME)

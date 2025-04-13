@@ -36,7 +36,7 @@ namespace arc::display {
         Ncurses();
 
         /**
-         * @brief Destructor that ensures cleanup of Ncurses resources.
+         * @brief Destructor that ensures cleanup of Ncurses ressources.
          */
         ~Ncurses();
 
@@ -47,20 +47,20 @@ namespace arc::display {
         void Display() override;
         void Clear() override;
 
-        void DrawComponent(const arc::RenderComponent& component) override;
-        void DrawComponents(const std::vector<arc::RenderComponent>& components) override;
-        void DrawMap(const std::vector<std::vector<arc::RenderComponent>>& map) override;
-        void DrawText(const arc::TextComponent& text) override;
-        void DrawMenu(const arc::MenuComponent& menu) override;
-        void DrawScore(const int& score, const arc::TextComponent &text) override;
+        void DrawComponent(std::shared_ptr<arc::RenderComponent> component) override;
+        void DrawComponents(std::vector<std::shared_ptr<arc::RenderComponent>> components) override;
+        void DrawMap(std::vector<std::vector<std::shared_ptr<arc::RenderComponent>>> map) override;
+        void DrawText(std::shared_ptr<arc::TextComponent> text) override;
+        void DrawMenu(std::shared_ptr<arc::MenuComponent> menu) override;
+        void DrawScore(const int& score, std::shared_ptr<arc::TextComponent> text) override;
 
         std::pair<int, int> GetMousePos() const override;
         click GetMouseState() const override;
         Event HandleEvent() override;
         char GetKeyPressed() override;
 
-        void LoadResources(std::string filepath, arc::type type) override;
-        void UnloadResources(std::string filepath, arc::type type) override;
+        void LoadResources(std::string filepath, type type) override;
+        void UnloadResources(std::string filepath, type type) override;
         void LaunchMusic(std::string filepath) override;
         void StopMusic(std::string filepath) override;
 

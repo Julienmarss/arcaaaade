@@ -7,29 +7,39 @@
 
 #include "Core/GameManager.hpp"
 
-arc::GameManager::GameManager() : _text(0, 0, "Score : 0", arc::Colors::WHITE)
+arc::GameManager::GameManager() : _text(0, 0, "Score", arc::Colors::WHITE)
 {
     _score = 0;
+    _text.SetFont("ressources/font.ttf");
 }
 arc::GameManager::~GameManager()
 {
 }
 
-void arc::GameManager::LoadGame(const std::string &username, IGameLibrary *game, IGraphicLibrary *library)
+void arc::GameManager::LoadGame(IGameLibrary *game)
 {
-    this->_game = game;
-    std::vector<std::vector<arc::RenderComponent>> map = this->_mapManager.getMap(game->GetName());
+
+    if (!game) {
+        throw std::runtime_error("Null game pointer");
+    }
+
+    std::vector<std::vector<std::shared_ptr<arc::RenderComponent>>> map = this->_mapManager.getMap(game->GetName());
+    
     game->AddMap(map);
     game->InitGame();
-    (void)username;
-    (void)library;
+    std::cout << "Game loaded: " << game->GetName() << std::endl;
 }
 
 void arc::GameManager::run()
 {
 }
 
-arc::TextComponent arc::GameManager::getCurrentText() const
+std::shared_ptr<arc::TextComponent> arc::GameManager::getCurrentText() const
 {
-    return _text;
+    return std::make_shared<arc::TextComponent>(_text);;
+}
+
+void arc::GameManager::ResetGame()
+{
+    this->_game->Reset();
 }

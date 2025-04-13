@@ -45,7 +45,7 @@ namespace arc {
         virtual void Open() = 0;
 
         /**
-         * @brief Closes the graphic interface and releases associated resources.
+         * @brief Closes the graphic interface and releases associated ressources.
          */
         virtual void Close() = 0;
 
@@ -71,35 +71,35 @@ namespace arc {
          * 
          * @param component The RenderComponent to draw.
          */
-        virtual void DrawComponent(const RenderComponent& component) = 0;
+        virtual void DrawComponent(std::shared_ptr<arc::RenderComponent> component) = 0;
 
         /**
          * @brief Draws a list of renderable components.
          * 
          * @param components A vector of RenderComponents.
          */
-        virtual void DrawComponents(const std::vector<RenderComponent>& components) = 0;
+        virtual void DrawComponents(std::vector<std::shared_ptr<arc::RenderComponent>> components) = 0;
 
         /**
          * @brief Draws a 2D map made of renderable components.
          * 
          * @param map A 2D vector of RenderComponents.
          */
-        virtual void DrawMap(const std::vector<std::vector<RenderComponent>>& map) = 0;
+        virtual void DrawMap(std::vector<std::vector<std::shared_ptr<arc::RenderComponent>>> map) = 0;
 
         /**
          * @brief Draws a menu component on screen.
          * 
          * @param menu The MenuComponent to render.
          */
-        virtual void DrawMenu(const MenuComponent& menu) = 0;
+        virtual void DrawMenu(std::shared_ptr<arc::MenuComponent> menu) = 0;
 
         /**
          * @brief Draws a text component on screen.
          * 
          * @param text The TextComponent to render.
          */
-        virtual void DrawText(const TextComponent& text) = 0;
+        virtual void DrawText(std::shared_ptr<arc::TextComponent> text) = 0;
 
         /**
          * @brief Draws the score using a text template.
@@ -107,7 +107,7 @@ namespace arc {
          * @param score The numeric score.
          * @param text The TextComponent for formatting or styling.
          */
-        virtual void DrawScore(const int& score, const TextComponent& text) = 0;
+        virtual void DrawScore(const int& score, std::shared_ptr<arc::TextComponent> text) = 0;
 
         /**
          * @brief Gets the current mouse position.

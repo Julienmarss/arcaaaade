@@ -11,11 +11,13 @@ namespace arc {
     enum Colors {
         UNDEFINED = -1,
         BLACK = 0,
-        RED = 1,
-        GREEN = 2,
-        YELLOW = 3,
+        WHITE = 1,
+        RED = 2,
+        GREEN = 3,
         BLUE = 4,
-        WHITE = 5,
+        YELLOW = 5,
+        MAGENTA = 6,
+        CYAN = 7
     };
 }
 #endif

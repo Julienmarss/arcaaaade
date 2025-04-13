@@ -16,6 +16,8 @@
 #include "Interface/IGameLibrary.hpp"
 #include "Core/ArcadeState.hpp"
 #include "Core/MenuManager.hpp"
+#include "Core/ToggleLibManager.hpp"
+#include "Core/ScoreboardManager.hpp"
 #include <memory>
 
 namespace arc {
@@ -41,9 +43,8 @@ namespace arc {
             /**
              * @brief Runs the arcade application with the specified graphic library.
              * 
-             * @param lib Path to the graphic library to load.
              */
-            void run(std::string lib);
+            void run();
 
         private:
             /**
@@ -68,7 +69,6 @@ namespace arc {
              * @return std::vector<std::string> List of file names.
              */
             std::vector<std::string> readDirectory(std::string directory) const;
-
             std::vector<void *> _handles; ///< Handles to the dynamically loaded libraries.
             std::vector<std::shared_ptr<IGraphicLibrary>> _libraries; ///< Loaded graphic libraries.
             std::vector<std::shared_ptr<IGameLibrary>> _games; ///< Loaded game libraries.
@@ -76,6 +76,15 @@ namespace arc {
             std::string username; ///< Username of the current player.
             arc::ArcadeState _state; ///< Current state of the arcade (e.g., menu, game).
             MenuManager *_menuManager; ///< Manager for handling menu logic.
+            ToggleLibManager *_toggleLibManager; ///< Manager for handling library toggling.
+            arc::IGraphicLibrary *_graphicLibrary; ///< Pointer to the current graphic library in use.
+            void toggleLib(); ///< Toggles between different graphic libraries.
+            int getCurrentLibraryIndex(); ///< Gets the index of the current graphic library in the list of loaded libraries.
+            void loadLibrary(std::string lib); ///< Loads a specific graphic library.
+            std::string helpMessage() const; ///< Returns a help message for command-line usage.
+            void loadLibraries(); ///< Loads all graphic libraries.
+            void loadGames(); ///< Loads all game libraries.
+            ScoreboardManager *_scoreboardManager; ///< Manages the scoreboard for the games.
     };
 }
 

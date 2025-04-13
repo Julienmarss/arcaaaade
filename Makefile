@@ -11,23 +11,25 @@ core:
 	$(MAKE) -C src
 games:
 	$(MAKE) -C src/Games/Snake
+	$(MAKE) -C src/Games/Nibbler
 graphicals:
 	$(MAKE) -C src/Libraries/Ncurses
-	$(MAKE) -C src/Libraries/SFML
 	$(MAKE) -C src/Libraries/SDL	
 clean:
 	$(MAKE) -C src clean
 	$(MAKE) -C src/Games/Snake clean
+	$(MAKE) -C src/Games/Nibbler clean
 	$(MAKE) -C src/Libraries/Ncurses clean
 	$(MAKE) -C src/Libraries/SFML clean
 	$(MAKE) -C src/Libraries/SDL clean
 fclean: clean
 	$(MAKE) -C src fclean
 	$(MAKE) -C src/Games/Snake fclean
+	$(MAKE) -C src/Games/Nibbler fclean
 	$(MAKE) -C src/Libraries/Ncurses fclean
 	$(MAKE) -C src/Libraries/SFML fclean
 	$(MAKE) -C src/Libraries/SDL fclean
 	rm -f arcade
-	rm -f ./html
+	rm -f -r ./html
 
 re: fclean all

@@ -12,6 +12,40 @@ It is designed to be easy to use and flexible, allowing developers to create gam
 - **Snake**: A classic snake game where the player controls a snake that grows longer as it eats food.
 - **Nibbler**: A variant of the snake game where the player controls a snake that must navigate through a maze to collect food and avoid obstacles.
 
+### Prerequisites
+- Make
+- CPP Compiler
+
+
+1. Run `make` to build the core, games and graphicals.
+2. Run `./arcade ./lib/arcade_sfml.so` to start the core.
+3. Select a game and a library from the menu.
+4. Use the arrow keys to navigate the menu and select a game and a library.
+5. You can enter your name
+5. Use the `Enter` key to start the game.
+6. Use the `Esc` key to quit the game.
+
+## Ideas for games and libraries
+
+All the games and libraries are in the `src/Games` and `src/Libraries` folders. You can create your own games and libraries by following the instructions below. The name of the game or library must be in lowercase and the name of .so must be the same as the name of the game or library. For example, if you create a game called `my_game`, the name of the .so file must be `arcade_my_game.so`. The same applies for libraries.
+### **Libraries**: 
+ - NDK++ (arcade_ndk++.so)
+ - aa-lib (arcade_aalib.so)
+ - libcaca (arcade_libcaca.so)
+ - Allegro5 (arcade_allegro5.so)
+ - Xlib (arcade_xlib.so)
+ - GTK+ (arcade_gtk+.so)
+ - Irrlicht (arcade_irrlicht.so)
+ - OpenGL (arcade_opengl.so)
+ - Vulkan (arcade_vulkan.so)
+ - Qt5 (arcade_qt5.so)
+
+### **Games**:
+ - Minesweeper (arcade_minesweeper.so)
+ - Pacman (arcade_pacman.so)
+ - Qix (arcade_qix.so)
+ - Centipede (arcade_centipede.so)
+ - Solarfox (arcade_solarfox.so)
 ## How to build
 ### Game interface - `IGameLibrary`
 
@@ -108,14 +142,8 @@ namespace arc::games {
 
         /**
          * @brief Closes and cleans up the game state.
-        /**
-         * @brief Updates the game state based on input and tick.
-         * 
-         * @param state The click state (if used).
-         * @param key The event key pressed.
-         * @return True if update succeeded or game should continue, false if it should quit.
-         */
-         */
+         * @return void
+	 */
         void CloseGame();
 
         /**
@@ -130,11 +158,11 @@ namespace arc::games {
          * 
          * @param map The new game map to use.
          */
-        void AddMap(std::vector<std::vector<arc::RenderComponent>> map) override;
+        void AddMap(std::vector<std::vector<std::shared_ptr<arc::RenderComponent>>>) override;
 
     private:
         std::map<std::string, std::vector<arc::RenderComponent>> _objects; ///< Game objects by name.
-        std::vector<std::vector<RenderComponent>> _map;                    ///< Current game map.
+        std::vector<std::vector<std::shared_ptr<arc::RenderComponent>>> _map;                    ///< Current game map.
         int _score;
     };
 
@@ -192,8 +220,9 @@ fclean: clean
 re: fclean all
 
 .PHONY: all clean fclean re
-
-4. Add the game to main makefile in `Makefile` : 
+```
+4. Add the game to main makefile in `Makefile` :
+```
 all: core games graphicals
 
 core:
@@ -252,21 +281,21 @@ namespace arc::libraries {
         bool IsOpen() override;
         void Display() override;
 
-        void DrawComponent(const arc::RenderComponent& component) override;
-        void DrawComponents(const std::vector<arc::RenderComponent>& components) override;
+        void DrawComponent(std::shared_ptr<arc::RenderComponent>) override;
+        void DrawComponents(const std::vector<std::shared_ptr<arc::RenderComponent>> components) override;
         void DrawMap(const std::vector<std::vector<arc::RenderComponent>>& map) override;
         void DrawMenu(const arc::MenuComponent& menu) override;
-        void DrawText(const arc::TextComponent& text) override;
-        void DrawScore(const int& score, const arc::TextComponent& text) override;
+        void DrawText(std::shared_ptr<arc::TextComponent>text) override;
+        void DrawScore(const int& score, std::shared_ptr<arc::TextComponent>text) override;
 
         std::pair<int, int> GetMousePos() const override;
         arc::click GetMouseState() const override;
-        arc::Event HandleEvent() override;
+        Event HandleEvent() override;
         char GetKeyPressed() override;
         std::string GetName() const override;
         
-        void LoadResources(std::string filepath, arc::type type) override;
-        void UnloadResources(std::string filepath, arc::type type) override;
+        void LoadResources(std::string filepath, type type) override;
+        void UnloadResources(std::string filepath, type type) override;
         void LaunchMusic(std::string filepath) override;
         void StopMusic(std::string filepath) override;
 
@@ -354,7 +383,7 @@ fclean: clean
 
 ## Documentation
 
-You can find the documentation in the `html` folder. To learn more about classes and methods used for example TextComponent, RenderComponent, MenuComponent, etc.
+You can find the documentation in the `html` folder or from brower [here](https://arcade.ctxhosting.fr). To learn more about classes and methods used for example TextComponent, RenderComponent, MenuComponent, etc.
 
 ## Authors
 

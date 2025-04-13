@@ -10,6 +10,8 @@
 #include "Core/Abstract/AGraphicLibrary.hpp"
 #include "Core/Abstract/AGameLibrary.hpp"
 #include "Core/MapManager.hpp"
+#include "Core/Components/RenderComponent.hpp"
+#include <vector>
 
 namespace arc {
 
@@ -35,11 +37,9 @@ namespace arc {
         /**
          * @brief Loads a game and initializes the player session.
          * 
-         * @param username Name of the player.
          * @param game Pointer to the game library to load.
-         * @param library Pointer to the graphical library to use.
          */
-        void LoadGame(const std::string &username, IGameLibrary *game, IGraphicLibrary *library);
+        void LoadGame(IGameLibrary *game);
 
         /**
          * @brief Starts and runs the game loop.
@@ -51,7 +51,7 @@ namespace arc {
          * 
          * @return A 2D vector representing the current map using RenderComponents.
          */
-        std::vector<std::vector<arc::RenderComponent>> getCurrentMap() const;
+        std::vector<std::vector<std::shared_ptr<arc::RenderComponent>>> getCurrentMap() const;
 
         /**
          * @brief Gets the current game score.
@@ -65,13 +65,25 @@ namespace arc {
          * 
          * @return The current TextComponent.
          */
-        TextComponent getCurrentText() const;
+        std::shared_ptr<arc::TextComponent> getCurrentText() const;
+
+        /**
+         * @brief Resets the game state and score.
+         * 
+         */
+        void ResetGame();
+
+        /**
+         * @brief 
+         */
+
 
     private:
         int _score;                              ///< Current player score.
         MapManager _mapManager;                  ///< Handles the current game map.
         arc::IGameLibrary *_game;                ///< Pointer to the loaded game logic.
         arc::TextComponent _text;                ///< Current text to be displayed.
+        std::vector<std::vector<std::shared_ptr<arc::RenderComponent>>> map;              ///< Initial map.
     };
 
 }

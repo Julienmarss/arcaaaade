@@ -11,6 +11,7 @@
 #include <string>
 #include <vector>
 #include <functional>
+#include <memory>
 #include "Core/Components/TextComponent.hpp"
 
 namespace arc {
@@ -33,13 +34,13 @@ namespace arc {
              * @brief Add an item to the menu
              * @param item The item to add
              */
-            void AddItem(const TextComponent& item);
+            void AddItem(std::shared_ptr<TextComponent> item);
 
             /**
              * @brief Remove an item from the menu
              * @param item The item to remove
              */
-            void RemoveItem(const TextComponent& item);
+            void RemoveItem(std::shared_ptr<TextComponent> item);
 
             /**
              * @brief Select an item from the menu
@@ -49,15 +50,15 @@ namespace arc {
 
             /**
              * @brief Set the title of the menu
-             * @param menuTitle The title of the menu
+             * @param title The title of the menu
              */
-            void SetTitle(const TextComponent& menuTitle);
+            void SetTitle(std::shared_ptr<TextComponent> title);
 
             /**
              * @brief Get the selected item from the menu
              * @return The selected item
              */
-            TextComponent GetSelectedItem() const;
+            std::shared_ptr<TextComponent> GetSelectedItem() const;
 
             /**
              * @brief Get selected index
@@ -69,20 +70,20 @@ namespace arc {
              * @brief Get the title of the menu
              * @return The title of the menu
              */
-            TextComponent GetTitle() const;
+            std::shared_ptr<TextComponent> GetTitle() const;
 
             /**
              * @brief Get the items of the menu
              * @return The items of the menu
              */
-            std::vector<TextComponent> GetItems() const;
+            std::vector<std::shared_ptr<TextComponent>> GetItems() const;
 
 
         private:
             /**
              * @brief The items of the menu
              */
-            std::vector<TextComponent> items;
+            std::vector<std::shared_ptr<TextComponent>> items;
 
             /**
              * @brief The selected index
@@ -92,7 +93,7 @@ namespace arc {
             /**
              * @brief The title of the menu
              */
-            TextComponent title;
+            std::shared_ptr<TextComponent> title;
     };
 }
 

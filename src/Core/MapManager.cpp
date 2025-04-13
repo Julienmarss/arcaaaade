@@ -11,10 +11,12 @@
 #include <string>
 #include <algorithm>
 #include <cctype>
+#include <memory>
 
 arc::MapManager::MapManager()
 {
-    this->LoadMap("snake", "resources/maps/snake1.txt");
+    this->LoadMap("snake", "ressources/maps/snake1.txt");
+    this->LoadMap("nibbler", "ressources/maps/nibbler1.txt");
 }
 
 arc::MapManager::~MapManager()
@@ -33,10 +35,10 @@ void arc::MapManager::LoadMap(const std::string &name, const std::string& filepa
         return;
     }
     std::string line;
-    std::vector<std::vector<arc::RenderComponent>> map;
+    std::vector<std::vector<std::shared_ptr<arc::RenderComponent>>> map;
     int lineIndex = 0;
     while (std::getline(file, line)) {
-        std::vector<arc::RenderComponent> lineComponents;
+        std::vector<std::shared_ptr<arc::RenderComponent>> lineComponents;
         for (size_t i = 0; i < line.size(); ++i) {
             char c = line[i];
             if (c != '\n' && c != '\r') {
@@ -50,22 +52,22 @@ void arc::MapManager::LoadMap(const std::string &name, const std::string& filepa
     file.close();
 }
 
-arc::RenderComponent arc::MapManager::createComponent(int x, int y, char c)
+std::shared_ptr<arc::RenderComponent> arc::MapManager::createComponent(int x, int y, char c)
 {
     if (c == ' ')
-        return arc::RenderComponent(x, y, arc::TypeComponent::EMPTY, c, "resources/empty.png");
+        return std::make_shared<arc::RenderComponent>(x, y, arc::TypeComponent::EMPTY, c, "ressources/empty.png");
     if (c == '#')
-        return arc::RenderComponent(x, y, arc::TypeComponent::WALL, c, "resources/wall.png");
+        return std::make_shared<arc::RenderComponent>(x, y, arc::TypeComponent::WALL, c, "ressources/wall.png");
     if (c == 'P')
-        return arc::RenderComponent(x, y, arc::TypeComponent::PLAYER, c, "resources/player.png");
+        return std::make_shared<arc::RenderComponent>(x, y, arc::TypeComponent::PLAYER, c, "ressources/player.png");
     if (c == 'E')
-        return arc::RenderComponent(x, y, arc::TypeComponent::ENEMY, c, "resources/enemy.png");
+        return std::make_shared<arc::RenderComponent>(x, y, arc::TypeComponent::ENEMY, c, "ressources/enemy.png");
     if (c == 'C' || c == 'F')
-        return arc::RenderComponent(x, y, arc::TypeComponent::COLLECTIBLE, c, "resources/collectible.png");
-    return arc::RenderComponent(x, y, arc::TypeComponent::EMPTY, c, "resources/empty.png");
+        return std::make_shared<arc::RenderComponent>(x, y, arc::TypeComponent::COLLECTIBLE, c, "ressources/collectible.png");
+    return std::make_shared<arc::RenderComponent>(x, y, arc::TypeComponent::EMPTY, c, "ressources/empty.png");
 }
 
-std::vector<std::vector<arc::RenderComponent>> arc::MapManager::getMap(const std::string &name) const
+std::vector<std::vector<std::shared_ptr<arc::RenderComponent>>> arc::MapManager::getMap(const std::string &name) const
 {
     std::string lowername = name;
     std::transform(lowername.begin(), lowername.end(), lowername.begin(), [](unsigned char c) { return std::tolower(c); });

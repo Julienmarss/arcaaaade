@@ -8,7 +8,11 @@
 
 NAME = arcade_ncurses.so
 
-SRC = Ncurses.cpp
+SRC = Ncurses.cpp \
+		NcursesWrapper.cpp \
+		../../Core/Components/RenderComponent.cpp \
+		../../Core/Components/MenuComponent.cpp \
+		../../Core/Components/TextComponent.cpp
 
 OBJ = $(SRC:.cpp=.o)
 

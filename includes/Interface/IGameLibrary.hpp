@@ -14,6 +14,7 @@
 #include "Core/Click.hpp"
 #include "Core/Event.hpp"
 #include "Core/Components/RenderComponent.hpp"
+#include "memory"
 
 namespace arc {
 
@@ -39,7 +40,7 @@ namespace arc {
          * @param name The name of the object
          * @param component The component of the object
          */
-        virtual void AddObject(std::string name, RenderComponent component) = 0;
+        virtual void AddObject(std::string name, std::shared_ptr<arc::RenderComponent> component) = 0;
 
         /**
          * @brief Delete an object from the game
@@ -52,7 +53,7 @@ namespace arc {
          * @param name The name of the object
          * @return The objects of the game
          */
-        virtual std::vector<RenderComponent> GetObjects(std::string name) const = 0;
+        virtual std::vector<std::shared_ptr<arc::RenderComponent>> GetObjects(std::string name) const = 0;
 
         /**
          * @brief Get the score of the game
@@ -85,13 +86,13 @@ namespace arc {
          * @brief Add a map to the game
          * @param map The map of the game
          */
-        virtual void AddMap(std::vector<std::vector<RenderComponent>> map) = 0;
+        virtual void AddMap(std::vector<std::vector<std::shared_ptr<arc::RenderComponent>>> map) = 0;
 
         /**
          * @brief Get the map of the game
          * @return The map of the game
          */
-        virtual std::vector<std::vector<RenderComponent>> GetMap() const = 0;
+        virtual std::vector<std::vector<std::shared_ptr<arc::RenderComponent>>> GetMap() const = 0;
         /**
          * @brief Get the score of the game
          * @return The score of the game
