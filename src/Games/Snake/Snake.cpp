@@ -81,7 +81,7 @@ void arc::games::Snake::InitGame()
         }
     }
     
-    for (int i = 1; i < 3; i++) {
+    for (int i = 1; i < 4; i++) {
         if (_playerHead.first + i < static_cast<int>(this->_map.size())) {
             this->_map[_playerHead.first + i][_playerHead.second]->SetType(arc::TypeComponent::PLAYER);
             this->_map[_playerHead.first + i][_playerHead.second]->SetCharacter('o');
@@ -99,40 +99,38 @@ void arc::games::Snake::spawnFood()
     
     this->_map[x][y]->SetType(arc::TypeComponent::COLLECTIBLE);
     this->_map[x][y]->SetCharacter('F');
-    this->_map[x][y]->SetFilePath("ressources/food.png");
+    this->_map[x][y]->SetFilePath("");
 }
 
 bool arc::games::Snake::Update(click state, Event key)
 {
     (void)state;
-    
     if (_directionX == 0 && _directionY == 0) {
         switch (key) {
-            case Event::UP:    _directionX = -1; _directionY = 0; break;
-            case Event::DOWN:  _directionX = 1;  _directionY = 0; break;
-            case Event::LEFT:  _directionX = 0;  _directionY = -1; break;
-            case Event::RIGHT: _directionX = 0;  _directionY = 1; break;
+            case Event::UP:    _directionX = 0; _directionY = -1; break;
+            case Event::DOWN:  _directionX = 0;  _directionY = 1; break;
+            case Event::LEFT:  _directionX = 1;  _directionY = 0; break;
+            case Event::RIGHT: _directionX = -1;  _directionY = 0; break;
             default: break;
         }
         return true;
     }
     switch (key) {
         case Event::UP:
-            if (_directionX != 1) { _directionX = -1; _directionY = 0; }
-            break;
-        case Event::DOWN:
-            if (_directionX != -1) { _directionX = 1; _directionY = 0; }
-            break;
-        case Event::LEFT:
             if (_directionY != 1) { _directionX = 0; _directionY = -1; }
             break;
-        case Event::RIGHT:
+        case Event::DOWN:
             if (_directionY != -1) { _directionX = 0; _directionY = 1; }
+            break;
+        case Event::LEFT:
+            if (_directionX != 1) { _directionX = -1; _directionY = 0; }
+            break;
+        case Event::RIGHT:
+            if (_directionX != -1) { _directionX = 1; _directionY = 0; }
             break;
         default:
             break;
     }
-    
     int nextX = _playerHead.first + _directionX;
     int nextY = _playerHead.second + _directionY;
     if (nextX < 0 || nextX >= static_cast<int>(_map.size()) ||
@@ -142,6 +140,7 @@ bool arc::games::Snake::Update(click state, Event key)
     }
     if (_map[nextX][nextY]->GetType() == arc::TypeComponent::PLAYER && 
         _map[nextX][nextY]->GetCharacter() == 'o') {
+        std::cout << "Game Over: You hit yourself!" << std::endl;
         this->_gameOver = true;
         return false;
     }
@@ -151,6 +150,10 @@ bool arc::games::Snake::Update(click state, Event key)
         spawnFood();
     } else if (_map[nextX][nextY]->GetType() == arc::TypeComponent::EMPTY) {
         changePlayerPosition(_directionX, _directionY);
+    } else if (_map[nextX][nextY]->GetType() == arc::TypeComponent::WALL) {
+        this->_gameOver = true;
+        std::cout << "Game Over: You hit a wall!" << std::endl;
+        return false;
     }
     
     return true;
@@ -167,8 +170,7 @@ void arc::games::Snake::DeleteObject(std::string name)
 
 std::vector<std::shared_ptr<arc::RenderComponent>> arc::games::Snake::GetObjects(std::string name) const
 {
-    (void)name;
-    return std::vector<std::shared_ptr<arc::RenderComponent>>();
+    (void)name;    return std::vector<std::shared_ptr<arc::RenderComponent>>();
 }
 
 int arc::games::Snake::GetScore() const
@@ -184,6 +186,10 @@ bool arc::games::Snake::IsGameOver() const
 void arc::games::Snake::Reset()
 {
     this->_map = this->_copy;
+    this->_gameOver = false;
+    this->_directionX = 0;
+    this->_directionY = 0;
+    std::cout << "Snake reset" << std::endl;
 }
 
 std::string arc::games::Snake::GetName() const

@@ -60,7 +60,6 @@ void arc::Application::loadGames()
 {
     for (const auto& game : _games) {
         try {
-            game->InitGame();
             std::cout << "Game loaded: " << game->GetName() << std::endl;
         } catch (const std::exception &e) {
             throw ApplicationError(e.what());
@@ -233,10 +232,9 @@ void arc::Application::run()
     Event event = Event::TEXT_INPUT;
     Event lastEvent = Event::TEXT_INPUT; 
     int score = 0;
-    int i = 0;
     std::vector<std::vector<std::shared_ptr<arc::RenderComponent>>> map;
     std::chrono::steady_clock::time_point lastUpdate = std::chrono::steady_clock::now();
-    std::chrono::milliseconds updateInterval(1000);
+    std::chrono::milliseconds updateInterval(500);
     
     try {
         _graphicLibrary->Initialize();
@@ -261,11 +259,9 @@ void arc::Application::run()
         if (_menuManager->getState() == ArcadeState::IN_GAME) {
             auto currentTime = std::chrono::steady_clock::now();
             if (currentTime - lastUpdate >= updateInterval) {
-                std::cout << "Update" << i << std::endl;
                 _menuManager->getCurrentGame()->Update(_graphicLibrary->GetMouseState(), lastEvent);
                 lastUpdate = currentTime;
                 lastEvent = Event::TEXT_INPUT;
-                i++;
             }
             if (event != Event::TEXT_INPUT) {
                 //_menuManager->getCurrentGame()->Update(libraries->GetMouseState(), lastEvent);
@@ -280,9 +276,8 @@ void arc::Application::run()
             if (_menuManager->getCurrentGame()->IsGameOver()) {
                 std::cout << "Game Over" << std::endl;
                 std::cout << "Score: " << score << std::endl;
-                _menuManager->setState(ArcadeState::GAME_MENU);
+                _menuManager->setState(ArcadeState::GAME_OVER);
                 _menuManager->getCurrentGame()->Reset();
-                _menuManager->getCurrentGame()->CloseGame();
             }
     
         }

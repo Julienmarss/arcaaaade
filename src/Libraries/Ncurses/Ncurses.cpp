@@ -117,9 +117,7 @@ char arc::display::Ncurses::GetKeyPressed()
 
 void arc::display::Ncurses::DrawComponent(std::shared_ptr<arc::RenderComponent> component)
 {
-    NcursesWrapper::setAttr(2);
     NcursesWrapper::printChar(component->GetX() + 10, component->GetY() + this->middle, component->GetCharacter());
-    NcursesWrapper::unsetAttr(2);
 }
 
 void arc::display::Ncurses::DrawMap(std::vector<std::vector<std::shared_ptr<arc::RenderComponent>>> map)

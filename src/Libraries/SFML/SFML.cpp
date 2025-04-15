@@ -321,7 +321,7 @@ void arc::display::SFML::changeMap(const std::vector<std::vector<std::shared_ptr
     for (const auto& row : map) {
         for (const auto& component : row) {
             sf::RectangleShape rectangle(sf::Vector2f(10, 10));
-            rectangle.setPosition(((component->GetY() * 10) + middle), (component->GetX() * 10) + middle);
+            rectangle.setPosition(((component->GetX() * 10) + middle), (component->GetY() * 10) + middle);
             if (component->GetType() == arc::TypeComponent::WALL) {
                 rectangle.setFillColor(sf::Color::Red);
             } else if (component->GetType() == arc::TypeComponent::PLAYER) {

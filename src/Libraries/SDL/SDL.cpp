@@ -31,7 +31,7 @@ void arc::display::SDL::Initialize()
 
 void arc::display::SDL::Open()
 {
-    _window = SDLWrapper::createWindow("Arcade - SDL", 800, 600);
+    _window = SDLWrapper::createWindow("Arcade - SDL", 960, 640);
     _renderer = SDLWrapper::createRenderer(_window);
     SDLWrapper::setDrawColor(_renderer, 0, 0, 0, 255);
     _isOpen = true;
@@ -123,7 +123,7 @@ void arc::display::SDL::DrawMap(std::vector<std::vector<std::shared_ptr<arc::Ren
     
     for (size_t i = 0; i < map.size(); i++) {
         for (size_t j = 0; j < map[i].size(); j++) {
-            SDL_Rect rect = {startX + (int)j * 20, startY + (int)i * 20, 18, 18};
+            SDL_Rect rect = {startX + (int)i * 20, startY + (int)j * 20, 18, 18};
             
             SDL_Color color;
             switch (map[i][j]->GetType()) {
@@ -180,8 +180,6 @@ void arc::display::SDL::DrawMenu(std::shared_ptr<arc::MenuComponent> menu)
             normalColor,
             selectedColor
         );
-
-        SDLWrapper::presentRenderer(_renderer);
     } catch (const std::exception& e) {
         std::cerr << "Error drawing menu: " << e.what() << std::endl;
     }
